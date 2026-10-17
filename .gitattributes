@@ -1,0 +1,11 @@
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+*.bat text eol=crlf
+
+# Frozen upstream inputs are verified byte for byte, including line endings.
+/rust/vendor/** -text whitespace=cr-at-eol
+/rust/fixtures/** -text whitespace=cr-at-eol
+/tests/fixtures/** -text whitespace=cr-at-eol
+/benchmarks/**/opponents.txt -text -eol whitespace=cr-at-eol
+/docs/ai/data/unit-catalog.json -text -eol
+*.bin -text

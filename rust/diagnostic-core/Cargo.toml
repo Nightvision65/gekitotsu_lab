@@ -1,0 +1,18 @@
+[package]
+name = "gkt-diagnostic-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lib]
+name = "gkt_diagnostic_core"
+
+[features]
+phase-timing = []
+bounds-verify = []
+wall-aabb-verify = []
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

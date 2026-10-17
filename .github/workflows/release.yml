@@ -1,0 +1,46 @@
+name: 构建发布附件
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: '3.12'
+          activate-environment: opencode
+          auto-activate-base: false
+      - uses: dtolnay/rust-toolchain@stable
+      - name: 构建与验收
+        shell: pwsh
+        run: |
+          (& conda 'shell.powershell' 'hook') | Out-String | Invoke-Expression
+          conda activate opencode
+          ./tools/ai/build.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tools/ai/gravity.py build --timeout 300
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./tools/ai/test.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python benchmarks/external10433/summarize.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./tools/release/package.ps1 -SkipBuild
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gekitotsu_lab-release
+          path: dist/*
+          if-no-files-found: error

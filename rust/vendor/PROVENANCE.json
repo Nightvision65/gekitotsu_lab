@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/xx786029704-arch/gekitotsu_rust",
+  "commit": "149e365221b09330a72d9a6a1804605e3ce4e1f5",
+  "paths": [
+    "crates/core",
+    "fixtures",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "ruleset": "catalog-hp-v1",
+  "combatHp": {
+    "30": 100,
+    "60": 75
+  },
+  "sourceHashes": "rust/vendor/source-hashes.json"
+}

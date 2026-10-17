@@ -1,0 +1,3 @@
+# Windows独立诊断程序静态链接VC运行库，避免依赖本机VCRUNTIME140.dll版本。
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]

@@ -1,0 +1,14 @@
+[package]
+name = "gkt-gravity"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+# Separate workspace/target: building this audit tool cannot replace battle observers.
+[workspace]
+
+[dependencies]
+gkt-core = { path = "../vendor/gkt-core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+

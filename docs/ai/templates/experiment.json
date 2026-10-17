@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "runId": "REPLACE_ME",
+  "objective": "maximize_standard200_win_rate",
+  "rules": {
+    "rulesetId": "provisional-normal-1500",
+    "confirmedByUser": false,
+    "budget": 1500,
+    "allowedCoreTypes": [
+      0
+    ],
+    "bannedUnitIds": [],
+    "techPolicy": "unconfirmed",
+    "unitCountLimit": null,
+    "overlapPolicy": "unconfirmed",
+    "fullHpOnly": true,
+    "coordinateSystem": "kit-workbench",
+    "coordinateBounds": {
+      "core": [
+        0,
+        276,
+        0,
+        276
+      ],
+      "unit": [
+        0,
+        348,
+        0,
+        349
+      ]
+    },
+    "targetGameVersion": null
+  },
+  "evaluation": {
+    "engine": "kit-bundled-rust",
+    "jarSha256": null,
+    "dllSha256": null,
+    "maxFrames": 65536,
+    "sides": [
+      "1P",
+      "2P"
+    ],
+    "seedPolicy": "engine-default",
+    "explicitSeeds": [],
+    "primaryMetric": "kit_win_rate_vs_standard200_as_1P",
+    "primarySide": "1P",
+    "auxiliarySide": "2P",
+    "drawScore": 0.5,
+    "timeoutPolicy": "timeout-as-draw-v1",
+    "errorPolicy": "isolate_and_retry",
+    "opponentWeights": "equal_for_all_200_frozen_entries",
+    "minimumGain": 0.0025,
+    "maxCriticalCategoryRegression": null,
+    "mustPassOpponentIds": []
+  },
+  "inputs": {
+    "baselineFile": "inputs/baseline.txt",
+    "benchmarkFile": "benchmarks/standard200/opponents.txt",
+    "benchmarkManifest": "benchmarks/standard200/manifest.json",
+    "benchmarkSha256": "0cd9c75baa7d15157e13102f30a92965df021d4809e34e756cadffe6ed998158",
+    "screeningSubsetFile": null,
+    "extraValidationFile": null,
+    "extraHoldoutFile": null,
+    "familySplitSeed": 20261012,
+    "inputHashes": {}
+  },
+  "search": {
+    "randomSeed": 20261012,
+    "initialCandidateLimit": null,
+    "totalBattleBudget": null,
+    "perCommandTimeoutSeconds": 180,
+    "threads": 4,
+    "stopAfterNoGainRounds": 3,
+    "holdoutConsumed": false,
+    "stageTargets": {
+      "approximate": true,
+      "standard200Candidates": 4000,
+      "validation2000Candidates": 100,
+      "final10433Candidates": 20,
+      "adjustmentPolicy": "按实际搜索空间、竞争情况和计算量上下调整；说明原阵是否计入总数"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+[package]
+name = "gkt-basic-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lib]
+name = "gkt_basic_core"
+
+[features]
+phase-timing = []
+bounds-verify = []
+wall-aabb-verify = []
+
+[dependencies]

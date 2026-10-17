@@ -1,0 +1,25 @@
+package org.example.elements.hit;
+
+import org.example.GameTask;
+import org.example.Main;
+import org.example.Utils;
+import org.example.elements.units.MagicBall;
+
+public class StarLaser extends LaserBase {     //星玉的激光
+
+    private int cnt;
+
+    public StarLaser(GameTask GAME, float X, int S) {
+        super(GAME, X, -600.f, 90, S, 25.F, 15.5F);
+        this.cnt = 0;
+    }
+
+    @Override
+    protected void follow() {
+        this.cnt++;
+        if (this.cnt >= 45) {
+            kill();
+        }
+    }
+
+}

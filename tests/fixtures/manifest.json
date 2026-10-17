@@ -1,0 +1,17 @@
+{
+  "id": "rust-149e365-standard200-v1",
+  "sourceRepository": "https://github.com/xx786029704-arch/gekitotsu_rust",
+  "sourceCommit": "149e365221b09330a72d9a6a1804605e3ce4e1f5",
+  "sourcePath": "fixtures/games/2P.txt",
+  "file": "standard200.txt",
+  "sha256": "0cd9c75baa7d15157e13102f30a92965df021d4809e34e756cadffe6ed998158",
+  "count": 200,
+  "normalization": "UTF-8;保留原条目、名称、顺序；纯码以slash+newline分隔",
+  "preserveAllEntries": true,
+  "scoringPolicy": "timeout-as-draw-v1",
+  "primaryMetric": "100*(W+0.5*(D+U))/200",
+  "candidateSide": "1P",
+  "maxFrames": 65536,
+  "seedPolicy": "engine-default",
+  "gate": "完整矩阵，E=0；U计平局"
+}

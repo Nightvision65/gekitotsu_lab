@@ -1,0 +1,26 @@
+package org.example.elements.units;
+
+import org.example.GameTask;
+import org.example.elements.Ball;
+import org.example.elements.atk.HolyBullet;
+
+public class HolyBall extends Ball {
+    public HolyBall(GameTask GAME, float X, float Y, int R, int S, int TYPE) {
+        super(GAME, X, Y, R, S, TYPE);
+        speed = 300;
+    }
+
+    @Override
+    public void stepEx() {   //攻击逻辑
+        if (cnt > speed + 5 && game.dead_last[side] != 0 && jump_flg != 1) {
+            cnt = 0;
+            new HolyBullet(game, x + cos_rot * 38, y + sin_rot * 38, game.dead_last[side], rot, side, on_side, jump_flg);
+            game.dead_last[side] = 0;
+        }
+    }
+
+    @Override
+    public void hurt(boolean is_crash){
+        cnt = 0;
+    }
+}

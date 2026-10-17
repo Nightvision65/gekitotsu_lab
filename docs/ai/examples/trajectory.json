@@ -1,0 +1,11 @@
+{
+  "action": "trajectory",
+  "near": false,
+  "ballFirst": true,
+  "x": 200,
+  "y": 349,
+  "wallX": 190,
+  "speed1": 4,
+  "speed2": 4,
+  "times": 1
+}

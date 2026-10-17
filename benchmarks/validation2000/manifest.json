@@ -1,0 +1,14 @@
+{
+  "id": "validation2000-current-v1",
+  "normalizedFile": "opponents.txt",
+  "normalizedFileSha256": "3e1f1d667f92d5043ffd3850ccf230edc9d0a902a0e4d75da5618f1cfc36170f",
+  "count": 2000,
+  "uniqueCodes": 2000,
+  "preserveAllEntries": true,
+  "preserveOrder": true,
+  "weightPolicy": "equal",
+  "scoringPolicy": "timeout-as-draw-v1",
+  "primaryMetric": "100*(W+0.5*(D+U))/2000",
+  "overlapWithStandard200": 138,
+  "containedInExternal10433": true
+}

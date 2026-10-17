@@ -1,0 +1,64 @@
+name: AI观察接口验证
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: '3.12'
+          activate-environment: opencode
+          auto-activate-base: false
+      - uses: dtolnay/rust-toolchain@stable
+      - name: 编译Java和Rust
+        shell: pwsh
+        run: |
+          [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+          (& conda 'shell.powershell' 'hook') | Out-String | Invoke-Expression
+          conda activate opencode
+          python tools/ai/prepare_core.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          mvn -q package
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo build --release --locked --manifest-path rust/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tools/ai/gravity.py build --timeout 300
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python benchmarks/external10433/summarize.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tools/release/audit_public.py --revision HEAD
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: 验证输入、查询、源码和200场观察器对照
+        shell: pwsh
+        run: |
+          [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+          (& conda 'shell.powershell' 'hook') | Out-String | Invoke-Expression
+          conda activate opencode
+          python -m unittest discover -s tests -p 'test_*.py' -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo test --release --locked --manifest-path rust/Cargo.toml -- --nocapture
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tests/verify_integration.py --out ai-data/verification/engine-200.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tests/verify_runtime.py --out ai-data/verification/runtime.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tests/verify_cli.py --out ai-data/verification/cli.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-verification
+          path: ai-data/verification/

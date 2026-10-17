@@ -1,0 +1,18 @@
+{
+  "id": "rust-149e365-standard200-v1",
+  "sourceRepository": "https://github.com/xx786029704-arch/gekitotsu_rust",
+  "sourceCommit": "149e365221b09330a72d9a6a1804605e3ce4e1f5",
+  "sourcePath": "fixtures/games/2P.txt",
+  "normalizedFile": "opponents.txt",
+  "normalizedFileSha256": "0cd9c75baa7d15157e13102f30a92965df021d4809e34e756cadffe6ed998158",
+  "count": 200,
+  "normalization": "UTF-8; preserve original entry order and names; keep ASCII alphanumeric code characters as Kit parser does; separate entries with slash plus newline",
+  "primaryMetric": "100*(W+0.5*(D+U))/200",
+  "defaultCandidateSide": "1P",
+  "sidePolicy": "Candidate 1P by default; 2P is auxiliary unless the task specifies otherwise",
+  "defaultEngine": "kit-bundled-rust",
+  "defaultMaxFrames": 65536,
+  "seedPolicy": "engine-default",
+  "preserveAllEntries": true,
+  "rankingGate": "complete 200 games, no errors, no timeouts, and separately verified ruleset"
+}

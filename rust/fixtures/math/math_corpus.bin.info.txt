@@ -1,0 +1,28 @@
+records=458957
+math_mismatches=3643
+mismatch_by_func(sin,cos,toDeg,toRad,atan2)=1888,1755,0,0,0
+mismatch_by_|a|(<2^-20,<1,<7,<1e3,<1e7,>=1e7)=0,484,361,428,280,2090
+mismatch func=0 a=0x3fa8b00000000000 b=0x0 strict=0x3fa8ad8d24309f58 math=0x3fa8ad8d24309f57
+mismatch func=0 a=0xbfa8b00000000000 b=0x0 strict=0xbfa8ad8d24309f58 math=0xbfa8ad8d24309f57
+mismatch func=0 a=0x3facd00000000000 b=0x0 strict=0x3faccc1b8881dca9 math=0x3faccc1b8881dca8
+mismatch func=0 a=0xbfacd00000000000 b=0x0 strict=0xbfaccc1b8881dca9 math=0xbfaccc1b8881dca8
+mismatch func=1 a=0x3fb4d00000000000 b=0x0 strict=0x3fefe4f141032f38 math=0x3fefe4f141032f37
+mismatch func=1 a=0xbfb4d00000000000 b=0x0 strict=0x3fefe4f141032f38 math=0x3fefe4f141032f37
+mismatch func=0 a=0x3fa8b00000000000 b=0x0 strict=0x3fa8ad8d24309f58 math=0x3fa8ad8d24309f57
+mismatch func=0 a=0xbfa8b00000000000 b=0x0 strict=0xbfa8ad8d24309f58 math=0xbfa8ad8d24309f57
+mismatch func=0 a=0x3fbc000000000000 b=0x0 strict=0x3fbbf1b78568391e math=0x3fbbf1b78568391d
+mismatch func=0 a=0xbfbc000000000000 b=0x0 strict=0xbfbbf1b78568391e math=0xbfbbf1b78568391d
+mismatch func=0 a=0x3facd00000000000 b=0x0 strict=0x3faccc1b8881dca9 math=0x3faccc1b8881dca8
+mismatch func=0 a=0xbfacd00000000000 b=0x0 strict=0xbfaccc1b8881dca9 math=0xbfaccc1b8881dca8
+mismatch func=0 a=0x3fbdf00000000000 b=0x0 strict=0x3fbdde8b1f90d27a math=0x3fbdde8b1f90d279
+mismatch func=0 a=0xbfbdf00000000000 b=0x0 strict=0xbfbdde8b1f90d27a math=0xbfbdde8b1f90d279
+mismatch func=0 a=0x3fc1b00000000000 b=0x0 strict=0x3fc1a19a866f20cf math=0x3fc1a19a866f20ce
+mismatch func=0 a=0xbfc1b00000000000 b=0x0 strict=0xbfc1a19a866f20cf math=0xbfc1a19a866f20ce
+mismatch func=0 a=0x3fc3d00000000000 b=0x0 strict=0x3fc3bbc578e0b88d math=0x3fc3bbc578e0b88c
+mismatch func=0 a=0xbfc3d00000000000 b=0x0 strict=0xbfc3bbc578e0b88d math=0xbfc3bbc578e0b88c
+mismatch func=1 a=0x3fb4d00000000000 b=0x0 strict=0x3fefe4f141032f38 math=0x3fefe4f141032f37
+mismatch func=1 a=0xbfb4d00000000000 b=0x0 strict=0x3fefe4f141032f38 math=0x3fefe4f141032f37
+mismatch func=0 a=0x3fbc000000000000 b=0x0 strict=0x3fbbf1b78568391e math=0x3fbbf1b78568391d
+mismatch func=0 a=0xbfbc000000000000 b=0x0 strict=0xbfbbf1b78568391e math=0xbfbbf1b78568391d
+DEG_TO_RAD_F32=0x3c8efa35
+jdk=21.0.9

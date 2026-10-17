@@ -1,0 +1,18 @@
+{
+  "upstreamRepository": "https://github.com/xx786029704-arch/gekitotsu_java",
+  "kitVersion": "1.9.1",
+  "license": "MIT",
+  "ruleset": "legacy-149e365",
+  "referenceJar": {
+    "path": "app/gekitotsu_java-1.9.1.jar",
+    "sha256": "da7b84440ec1e9a4377e9c398dcb7ce38b6c48ad00f6022d15750a47c1491a60"
+  },
+  "nativeLibrary": {
+    "path": "src/main/resources/native/gkt_jni.dll",
+    "sha256": "94ba7bf21979cfe85c0b74edbb07ba9f98cd4dd6719279beadec928b93f660bc"
+  },
+  "combatHp": {
+    "30": 150,
+    "60": 35
+  }
+}

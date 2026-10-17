@@ -1,0 +1,473 @@
+{
+  "schema": "gkt-unit-documentation-v1",
+  "coordinateSpace": "kit-workbench",
+  "sourceCommit": "149e365221b09330a72d9a6a1804605e3ce4e1f5",
+  "ruleset": "catalog-hp-v1",
+  "sourceHashes": "../../../../rust/vendor/source-hashes.json",
+  "cores": [
+    {
+      "coreType": 0,
+      "catalogId": 0,
+      "name": "要塞核心",
+      "file": "core-0-要塞核心.md"
+    },
+    {
+      "coreType": 1,
+      "catalogId": 61,
+      "name": "BOSS要塞",
+      "file": "core-1-BOSS要塞.md"
+    }
+  ],
+  "units": [
+    {
+      "id": 1,
+      "name": "弓玉",
+      "kind": "Bow",
+      "file": "01-弓玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 30,
+      "initialSpeed": 30
+    },
+    {
+      "id": 2,
+      "name": "铳玉",
+      "kind": "Gun",
+      "file": "02-铳玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 70,
+      "initialSpeed": 60
+    },
+    {
+      "id": 3,
+      "name": "剑玉",
+      "kind": "Sword",
+      "file": "03-剑玉.md",
+      "hp": 30,
+      "catalogHp": 30,
+      "cost": 30,
+      "initialSpeed": 10
+    },
+    {
+      "id": 4,
+      "name": "盾玉",
+      "kind": "Tate",
+      "file": "04-盾玉.md",
+      "hp": 30,
+      "catalogHp": 30,
+      "cost": 60,
+      "initialSpeed": 0
+    },
+    {
+      "id": 6,
+      "name": "魔玉",
+      "kind": "Magic",
+      "file": "06-魔玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 200,
+      "initialSpeed": 150
+    },
+    {
+      "id": 7,
+      "name": "弩玉",
+      "kind": "Dokyu",
+      "file": "07-弩玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 30,
+      "initialSpeed": 30
+    },
+    {
+      "id": 8,
+      "name": "枪玉",
+      "kind": "Yari",
+      "file": "08-枪玉.md",
+      "hp": 30,
+      "catalogHp": 30,
+      "cost": 30,
+      "initialSpeed": 15
+    },
+    {
+      "id": 9,
+      "name": "炮玉",
+      "kind": "Cannon",
+      "file": "09-炮玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 70,
+      "initialSpeed": 120
+    },
+    {
+      "id": 10,
+      "name": "剃玉",
+      "kind": "Nagi",
+      "file": "10-剃玉.md",
+      "hp": 30,
+      "catalogHp": 30,
+      "cost": 30,
+      "initialSpeed": 20
+    },
+    {
+      "id": 11,
+      "name": "跳玉",
+      "kind": "Hane",
+      "file": "11-跳玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 70,
+      "initialSpeed": 50
+    },
+    {
+      "id": 13,
+      "name": "散玉",
+      "kind": "Shotgun",
+      "file": "13-散玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 50,
+      "initialSpeed": 50
+    },
+    {
+      "id": 14,
+      "name": "狙玉",
+      "kind": "Sniper",
+      "file": "14-狙玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 70,
+      "initialSpeed": 100
+    },
+    {
+      "id": 16,
+      "name": "导玉",
+      "kind": "Guide",
+      "file": "16-导玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 80,
+      "initialSpeed": 180
+    },
+    {
+      "id": 17,
+      "name": "缮玉",
+      "kind": "Repair",
+      "file": "17-缮玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 100,
+      "initialSpeed": 150
+    },
+    {
+      "id": 18,
+      "name": "愈玉",
+      "kind": "Heal",
+      "file": "18-愈玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 100,
+      "initialSpeed": 150
+    },
+    {
+      "id": 19,
+      "name": "壁玉",
+      "kind": "Kabe",
+      "file": "19-壁玉.md",
+      "hp": 20,
+      "catalogHp": 20,
+      "cost": 150,
+      "initialSpeed": 60
+    },
+    {
+      "id": 21,
+      "name": "战玉",
+      "kind": "Sen",
+      "file": "21-战玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 150,
+      "initialSpeed": 300
+    },
+    {
+      "id": 23,
+      "name": "变玉",
+      "kind": "Hen",
+      "file": "23-变玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 100,
+      "initialSpeed": 100
+    },
+    {
+      "id": 24,
+      "name": "界玉",
+      "kind": "Kekkai",
+      "file": "24-界玉.md",
+      "hp": 20,
+      "catalogHp": 20,
+      "cost": 90,
+      "initialSpeed": 0
+    },
+    {
+      "id": 25,
+      "name": "木要塞壁",
+      "kind": "Wood",
+      "file": "25-木要塞壁.md",
+      "hp": 35,
+      "catalogHp": 35,
+      "cost": 15,
+      "initialSpeed": null
+    },
+    {
+      "id": 26,
+      "name": "石要塞壁",
+      "kind": "Stone",
+      "file": "26-石要塞壁.md",
+      "hp": 75,
+      "catalogHp": 75,
+      "cost": 40,
+      "initialSpeed": null
+    },
+    {
+      "id": 27,
+      "name": "纸要塞壁",
+      "kind": "Paper",
+      "file": "27-纸要塞壁.md",
+      "hp": 1,
+      "catalogHp": 1,
+      "cost": 5,
+      "initialSpeed": null
+    },
+    {
+      "id": 29,
+      "name": "红加速器",
+      "kind": "Jet",
+      "file": "29-红加速器.md",
+      "hp": 15,
+      "catalogHp": 15,
+      "cost": 100,
+      "initialSpeed": null
+    },
+    {
+      "id": 30,
+      "name": "蓝加速器",
+      "kind": "Turbo",
+      "file": "30-蓝加速器.md",
+      "hp": 100,
+      "catalogHp": 100,
+      "cost": 250,
+      "initialSpeed": null
+    },
+    {
+      "id": 31,
+      "name": "骨玉",
+      "kind": "Bone",
+      "file": "31-骨玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 10,
+      "initialSpeed": 30
+    },
+    {
+      "id": 32,
+      "name": "击玉",
+      "kind": "Geki",
+      "file": "32-击玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 70,
+      "initialSpeed": 120
+    },
+    {
+      "id": 33,
+      "name": "弹玉",
+      "kind": "Ton",
+      "file": "33-弹玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 60,
+      "initialSpeed": 70
+    },
+    {
+      "id": 34,
+      "name": "圣玉",
+      "kind": "Holy",
+      "file": "34-圣玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 200,
+      "initialSpeed": 300
+    },
+    {
+      "id": 35,
+      "name": "忍玉",
+      "kind": "Nin",
+      "file": "35-忍玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 70,
+      "initialSpeed": 70
+    },
+    {
+      "id": 39,
+      "name": "押玉",
+      "kind": "Push",
+      "file": "39-押玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 60,
+      "initialSpeed": 80
+    },
+    {
+      "id": 40,
+      "name": "迎玉",
+      "kind": "Gei",
+      "file": "40-迎玉.md",
+      "hp": 15,
+      "catalogHp": 15,
+      "cost": 60,
+      "initialSpeed": 40
+    },
+    {
+      "id": 41,
+      "name": "贽玉",
+      "kind": "Nie",
+      "file": "41-贽玉.md",
+      "hp": 30,
+      "catalogHp": 30,
+      "cost": 150,
+      "initialSpeed": 0
+    },
+    {
+      "id": 42,
+      "name": "的玉",
+      "kind": "Target",
+      "file": "42-的玉.md",
+      "hp": 30,
+      "catalogHp": 30,
+      "cost": 50,
+      "initialSpeed": 0
+    },
+    {
+      "id": 44,
+      "name": "箱玉",
+      "kind": "Box",
+      "file": "44-箱玉.md",
+      "hp": 15,
+      "catalogHp": 15,
+      "cost": 70,
+      "initialSpeed": 200
+    },
+    {
+      "id": 47,
+      "name": "采玉",
+      "kind": "Sai",
+      "file": "47-采玉.md",
+      "hp": 15,
+      "catalogHp": 15,
+      "cost": 20,
+      "initialSpeed": 200
+    },
+    {
+      "id": 48,
+      "name": "骑玉",
+      "kind": "Knight",
+      "file": "48-骑玉.md",
+      "hp": 50,
+      "catalogHp": 50,
+      "cost": 150,
+      "initialSpeed": 7
+    },
+    {
+      "id": 49,
+      "name": "核玉",
+      "kind": "Kaku",
+      "file": "49-核玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 200,
+      "initialSpeed": 350
+    },
+    {
+      "id": 50,
+      "name": "射玉",
+      "kind": "Sha",
+      "file": "50-射玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 100,
+      "initialSpeed": 70
+    },
+    {
+      "id": 51,
+      "name": "星玉",
+      "kind": "Star",
+      "file": "51-星玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 200,
+      "initialSpeed": 250
+    },
+    {
+      "id": 54,
+      "name": "查玉",
+      "kind": "Search",
+      "file": "54-查玉.md",
+      "hp": 10,
+      "catalogHp": 10,
+      "cost": 200,
+      "initialSpeed": 100
+    },
+    {
+      "id": 55,
+      "name": "近突击壁",
+      "kind": "Near",
+      "file": "55-近突击壁.md",
+      "hp": 35,
+      "catalogHp": 35,
+      "cost": 40,
+      "initialSpeed": null
+    },
+    {
+      "id": 56,
+      "name": "远突击壁",
+      "kind": "Far",
+      "file": "56-远突击壁.md",
+      "hp": 35,
+      "catalogHp": 35,
+      "cost": 50,
+      "initialSpeed": null
+    },
+    {
+      "id": 58,
+      "name": "蓝旋转壁",
+      "kind": "Narrow",
+      "file": "58-蓝旋转壁.md",
+      "hp": 35,
+      "catalogHp": 35,
+      "cost": 80,
+      "initialSpeed": null
+    },
+    {
+      "id": 59,
+      "name": "狙击壁",
+      "kind": "Snipe",
+      "file": "59-狙击壁.md",
+      "hp": 50,
+      "catalogHp": 50,
+      "cost": 200,
+      "initialSpeed": null
+    },
+    {
+      "id": 60,
+      "name": "电梯壁",
+      "kind": "Elevator",
+      "file": "60-电梯壁.md",
+      "hp": 75,
+      "catalogHp": 75,
+      "cost": 60,
+      "initialSpeed": null
+    }
+  ]
+}
