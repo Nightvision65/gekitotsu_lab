@@ -15,7 +15,9 @@ ROOT = ai.ROOT
 CRATE = ROOT / 'rust/gravity'
 BINARY = CRATE / 'target/release' / ('gkt-gravity.exe' if os.name == 'nt' else 'gkt-gravity')
 BUILD = CRATE / 'build.json'
-POLICY = 'static-support-gravity-v1'
+POLICY = 'static-support-gravity-v2'
+MAX_SUPPORT_PUSH_UP = 35.0
+EPSILON = 0.001
 
 
 def bounded(command, timeout):
@@ -143,7 +145,7 @@ def audit(args, apply=False):
             gate['candidateOutputSha256']=ai.file_hash(out/'candidates.json')
         save(out/'aliases.json', aliases)
     save(out/'gate.json', gate)
-    lines = ['# 开局重力审核', '', '政策：所有特殊效果关闭；车板、核心、全部墙体固定初始形状。仅调用实际Ball.land，含下落与支撑挤起。', '',
+    lines = ['# 开局重力审核', '', '政策：所有特殊效果关闭；车板、核心、全部墙体固定初始形状。仅调用实际Ball.land。全程上移容限35px，的玉（ID42）豁免下落限制，其他兵玉拒绝下落；连续静止与收敛仅作观察，不作审核门禁。', '',
              f"通过：{passed}；输入{len(rows)}阵，变化{gate['changedFormations']}阵/{gate['changedUnits']}单位，未收敛{gate['nonConverged']}，不可编码{gate['unencodable']}。", '',
              '| 索引 | 阵名 | 收敛 | 移动单位 | 最大上移 | 最大下落 |', '|---|---|---|---:|---:|---:|']
     for i,r in enumerate(results):
@@ -174,8 +176,16 @@ def verify_audit(folder, source):
             raise ValueError('应用结果哈希不同')
         applied=ai.read_json(folder/'candidates.json');results=ai.read_json(folder/'result-applied.json')['formations']
         if [r['code'] for r in applied]!=[r['code'] for r in results]:raise ValueError('应用结果顺序不同')
-    passed=all(r['auditPassed'] and r['converged'] and r['changedUnits']==0 and
-               not any(u['changed'] for u in r['units']) and r['appliedCode']==r['code'] for r in results)
+    def permitted(unit):
+        return (abs(unit['delta']['x'])<=EPSILON
+                and 0<=unit['maxUp']<=MAX_SUPPORT_PUSH_UP+EPSILON
+                and 0<=unit['maxDown']
+                and (unit['maxDown']<=EPSILON or unit['typeId']==42)
+                and -unit['maxUp']-EPSILON<=unit['delta']['y']<=unit['maxDown']+EPSILON)
+    passed=(data.get('maxSupportPushUp')==MAX_SUPPORT_PUSH_UP and
+            all(r['auditPassed'] and all(permitted(u) for u in r['units']) for r in results))
+    if manifest['mode']=='apply':
+        passed=passed and all(r['changedUnits']==0 and r['appliedCode']==r['code'] for r in results)
     if not passed or not gate['passed']:raise ValueError('重力门禁未通过')
     return gate
 

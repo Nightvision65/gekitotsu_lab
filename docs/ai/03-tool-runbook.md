@@ -109,7 +109,7 @@ conda activate opencode
 ./tools/ai/test.ps1 -Benchmark
 ```
 
-依赖已缓存时构建可加-Offline；首次境外下载按代理规则。当前catalog-hp-v1与旧DLL规则不同，不能删掉失败比较后宣称旧JNI全池等价；区分本轮实际运行、失败、未运行和跳过的检查，兼容范围见[项目地图](01-project-map.md#引擎核验与证据范围)。
+依赖已缓存时构建可加-Offline；首次境外下载按代理规则。当前源码和补丁JNI均采用catalog-hp-v1，test.ps1核验参考JAR与研究JAR的实际Java/JNI HP，并执行200局严格对照；未经补丁的旧DLL仍属旧规则，不能混用成绩；区分本轮实际运行、失败、未运行和跳过的检查，兼容范围见[项目地图](01-project-map.md#引擎核验与证据范围)。
 
 需要隔离核验HP或计时机制时，使用对应单元测试，按规则版本设置独立CARGO_TARGET_DIR，并给Cargo子进程180–300秒真实超时：
 

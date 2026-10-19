@@ -1,12 +1,12 @@
-# gekitotsu_lab 0.6.5
+# gekitotsu_lab 0.6.6
 
-Lab version: 0.6.5. Embedded GekitotsuKit version: 1.9.1. Lab releases do not advance the Kit version.
+Lab version: 0.6.6. Embedded GekitotsuKit version: 1.9.1.
 
-gekitotsu_lab combines the inherited Kit GUI with formation research tools, executable workflow contracts, mechanics references, and reproducible local evidence handling.
+- Fix gravity auditing with static-support-gravity-v2: permit normal support pushes up to 35 px, intentional target-ball (ID42) falls and movement within tolerance. Convergence remains required when publishing an applied stable code.
+- Align bundled JNI and reference Kit HP with catalog-hp-v1: blue accelerator 100, elevator wall 75. Use a distinct native engine identity to separate legacy caches.
+- Enforce strict 200-match JNI/plain/basic/detailed result comparisons and ship reusable Java/JNI HP checks.
+- Standardize reported win rates: draws and frame-limit unresolved outcomes count as half a win, with a fixed denominator; errors remain failures.
 
-- Consistent project, JAR, Windows launcher, and update repository naming.
-- Public source and release packages exclude personal formations, experiments, machine paths, and execution snapshots. GUI formation files start empty.
-- Portable builds include the GUI, observers, gravity checker, public opponent fixtures, documentation, and licenses. Source and portable archives have SHA256 checksums.
-- Source observers use catalog-hp-v1. The inherited JNI DLL retains its legacy rules; they are not interchangeable evaluation backends.
+Source and Windows x64 portable packages contain public code, documentation and fixed test inputs. Portable GUI inputs start empty. Private research, formations, results, caches, local configuration and maintenance materials are excluded.
 
-See docs/releasing.md for build requirements, validation scope, and package contents. Test fixtures contain public formation codes; no optimized personal formation or private evaluation result is distributed.
+Missing upstream telemetry/frames goldens remain explicitly skipped; simulator checks do not establish original Flash equivalence.

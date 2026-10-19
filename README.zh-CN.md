@@ -1,6 +1,6 @@
 # gekitotsu_lab
 
-激突Lab **0.6.5**，内置并使用激突Kit **1.9.1**，两者独立维护版本。
+激突Lab **0.6.6**，内置并使用激突Kit **1.9.1**，两者独立维护版本。
 
 **从轻巧的工具箱，走向大模型实验室。**
 
@@ -89,7 +89,7 @@ python tools/ai/ai.py --timeout 30 formation --file docs/ai/examples/candidate.t
 从源码构建后启动GUI：
 
 ```powershell
-java -jar target/gekitotsu_lab-0.6.5.jar
+java -jar target/gekitotsu_lab-0.6.6.jar
 ```
 
 CLI/JSON调用见[工具手册](docs/ai/03-tool-runbook.md)与[能力地图](docs/ai/capabilities.md)。在本地发行包中也可使用`gekitotsu_lab.exe`；打包程序与源码构建各自保留版本身份。
@@ -134,7 +134,7 @@ flowchart LR
 
 ## 引擎版本与证据
 
-快速评测使用所选JAR内置的JNI DLL，源码观察器使用固定来源的派生Rust核心。当前源码规则`catalog-hp-v1`将蓝加速器HP设为100、电梯壁设为75；原发行包DLL仍保留原规则，重新构建源码不会替换该DLL。跨后端比较或重放前，先核对[HP版本](docs/ai/unit-hp-rules.md)和[引擎适用范围](docs/ai/01-project-map.md#引擎核验与证据范围)。
+快速评测使用所选JAR内置的JNI DLL，源码观察器使用固定来源的派生Rust核心。当前源码规则`catalog-hp-v1`将蓝加速器HP设为100、电梯壁设为75；当前内置JNI已同步该规则，未经补丁的旧DLL仍保留原规则。重新构建Java会嵌入现有原生资源，不会从源码重建JNI。跨后端比较或重放前，先核对[HP版本](docs/ai/unit-hp-rules.md)和[引擎适用范围](docs/ai/01-project-map.md#引擎核验与证据范围)。
 
 阵码、物理侧位、帧上限、seed政策及引擎/适配器哈希共同构成证据身份。诊断结果与对应评测一致后，才用于解释该对局；静态审核仅证明其声明模型和侧位，模拟器结果也不直接等同原Flash表现。
 

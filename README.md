@@ -1,6 +1,6 @@
 # gekitotsu_lab
 
-Lab **0.6.5**, using GekitotsuKit **1.9.1**. Their versions are maintained independently.
+Lab **0.6.6**, using GekitotsuKit **1.9.1**. Their versions are maintained independently.
 
 **From a lightweight toolkit to a large language model laboratory.**
 
@@ -89,7 +89,7 @@ python tools/ai/ai.py --timeout 30 formation --file docs/ai/examples/candidate.t
 The source GUI starts with:
 
 ```powershell
-java -jar target/gekitotsu_lab-0.6.5.jar
+java -jar target/gekitotsu_lab-0.6.6.jar
 ```
 
 For CLI/JSON usage, see the [tool runbook](docs/ai/03-tool-runbook.md) and [capability map](docs/ai/capabilities.md). The Windows portable release starts with `gekitotsu_lab.exe`; its GUI inputs are empty. See [release builds](docs/releasing.md) for source and portable packages.
@@ -134,7 +134,7 @@ Use [analysis guidance](docs/ai/knowledge/analysis-usage.md) to interpret heatma
 
 ## Engine versions and evidence
 
-Fast evaluation uses the JNI DLL embedded in the selected JAR. Source observers use the pinned, locally derived Rust core. The current source rule `catalog-hp-v1` uses HP 100 for the blue accelerator and 75 for the elevator wall; the original bundled DLL retains its previous rules. Rebuilding the source does not replace that DLL. Check [HP rules](docs/ai/unit-hp-rules.md) and [engine compatibility](docs/ai/01-project-map.md#引擎核验与证据范围) before comparing or replaying results.
+Fast evaluation uses the JNI DLL embedded in the selected JAR. Source observers use the pinned, locally derived Rust core. The current source rule `catalog-hp-v1` uses HP 100 for the blue accelerator and 75 for the elevator wall; the bundled JNI now uses the same catalog-hp-v1 HP values. The unpatched older DLL keeps its legacy rules. Rebuilding Java embeds the existing native resource and does not rebuild JNI. Check [HP rules](docs/ai/unit-hp-rules.md) and [engine compatibility](docs/ai/01-project-map.md#引擎核验与证据范围) before comparing or replaying results.
 
 Formation codes, physical side, frame limit, seed policy, and engine/adapter hashes are part of evidence identity. Diagnostic results must match the corresponding evaluation before supporting an explanation. Static support checks cover their declared model and side; simulator results do not establish equivalence to the original Flash game.
 

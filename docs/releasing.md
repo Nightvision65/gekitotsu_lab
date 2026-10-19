@@ -4,7 +4,7 @@
 
 本地持续维护材料按用途放在Git忽略的`local-maintenance/`：修复与版本对照工具、维护记录、具体案例、宣传素材各用独立子目录，可以持续更新。公开文档只描述当前机制、操作与兼容边界，不依赖该目录中的文件；当前功能需要的源码和可复用测试仍随仓库分发。
 
-Lab版本为0.6.5，维护在pom.xml与Version.LAB_VERSION；内置Kit版本为1.9.1，维护在Version.VERSION。界面、更新检查、发布标签与附件使用Lab版本，Kit接口另报kitVersion，不随Lab发版改动Kit版本。
+Lab版本为0.6.6，维护在pom.xml与Version.LAB_VERSION；内置Kit版本为1.9.1，维护在Version.VERSION。界面、更新检查、发布标签与附件使用Lab版本，Kit接口另报kitVersion，不随Lab发版改动Kit版本。
 
 ## 本地验收与打包
 
@@ -26,7 +26,7 @@ dist生成源码ZIP、Windows x64便携ZIP和SHA256SUMS。打包仅从当前干�
 
 ## 后端与测试边界
 
-研究版Java与Rust观察器采用catalog-hp-v1；继承的JNI DLL仍是旧规则且缺少公开JNI构建工程。两者分别标记身份；默认集成验收核对plain/basic/detail三者，另外执行JNI接口而不声称跨规则逐局一致。`tests/verify_integration.py --compare-jni`保留严格对照模式，只能在规则一致时使用；不一致会失败。旧JNI不能作为新规则的等价证明。未公开的大金样可能跳过，日志中的跳过项不能计作通过。
+当前Java、Rust观察器与补丁JNI采用catalog-hp-v1；JNI仍缺少公开构建工程。默认集成验收严格核对200局JNI可观察的status/winnerHp/frames与plain/basic/detail结果，另核验Java/JNI实际HP。旧规则成绩不能作为新规则证据。未公开的大金样可能跳过，日志中的跳过项不能计作通过。
 
 内置JNI与固定参考JAR的当前版本、规则和SHA256见`app/kit-manifest.json`。Rust发布构建重映射源码与Cargo缓存路径，避免构建机用户目录进入二进制。
 

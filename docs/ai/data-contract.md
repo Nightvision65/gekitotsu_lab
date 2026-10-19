@@ -53,7 +53,7 @@
 
 ## 分析与评分
 
-评分字段`scorePercent`采用[timeout-as-draw-v1](10-benchmark-usage.md#评分与晋级)，E>0不赋正常主分；N为声明阵池完整局数。JNI evaluate检查返回矩阵长度，正反侧分别保存。反侧应以候选做2P单独计算，不能把两侧未经说明合并。
+胜率字段`scorePercent`采用[timeout-as-draw-v1](10-benchmark-usage.md#评分与晋级)，E>0不赋正常主分；N为声明阵池完整局数。JNI evaluate检查返回矩阵长度，正反侧分别保存。反侧应以候选做2P单独计算，不能把两侧未经说明合并。
 
 贡献表的slots是原阵码槽位；正deltaPoints表示删后更好。保留组合纯码和预算差，不把单删收益升级成全局单位价值。matchup新sensitivity/acceleration使用完整子集分母；guiReport/strengthSummary仍保留旧辅助口径。
 

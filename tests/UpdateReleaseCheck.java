@@ -3,17 +3,17 @@ package org.example;
 /** Release assets may contain a source ZIP before the Windows application ZIP. */
 public final class UpdateReleaseCheck {
     public static void main(String[] args) {
-        if (!"1.9.1".equals(Version.VERSION) || !"0.6.5".equals(Version.LAB_VERSION))
+        if (!"1.9.1".equals(Version.VERSION) || !"0.6.6".equals(Version.LAB_VERSION))
             throw new AssertionError("Kit and Lab versions must remain independent");
-        if (!UpdateChecker.isNewer("0.6.6", Main.LAB_VERSION))
+        if (!UpdateChecker.isNewer("0.6.7", Main.LAB_VERSION))
             throw new AssertionError("Application updates must use the Lab version");
-        String source = "{\"name\":\"gekitotsu_lab-0.6.5-source.zip\",\"browser_download_url\":\"https://example.invalid/source.zip\"}";
-        String windows = "{\"name\":\"gekitotsu_lab-0.6.5-windows-x64.zip\",\"browser_download_url\":\"https://example.invalid/windows.zip\"}";
+        String source = "{\"name\":\"gekitotsu_lab-0.6.6-source.zip\",\"browser_download_url\":\"https://example.invalid/source.zip\"}";
+        String windows = "{\"name\":\"gekitotsu_lab-0.6.6-windows-x64.zip\",\"browser_download_url\":\"https://example.invalid/windows.zip\"}";
         String legacy = "{\"name\":\"GekitotsuKit v1.9.1.zip\",\"browser_download_url\":\"https://example.invalid/legacy.zip\"}";
-        UpdateChecker.Release selected = UpdateChecker.parseRelease("{\"tag_name\":\"v0.6.5\",\"assets\":[" + source + "," + legacy + "," + windows + "]}");
+        UpdateChecker.Release selected = UpdateChecker.parseRelease("{\"tag_name\":\"v0.6.6\",\"assets\":[" + source + "," + legacy + "," + windows + "]}");
         if (selected == null || !"https://example.invalid/windows.zip".equals(selected.zipUrl()))
             throw new AssertionError("The Windows application ZIP must take priority");
-        selected = UpdateChecker.parseRelease("{\"tag_name\":\"v0.6.5\",\"assets\":[" + source + "]}");
+        selected = UpdateChecker.parseRelease("{\"tag_name\":\"v0.6.6\",\"assets\":[" + source + "]}");
         if (selected == null || selected.zipUrl() != null)
             throw new AssertionError("A source ZIP must never be offered as an application update");
         System.out.println("发布附件选择通过：Windows便携包优先，源码包不作为自动更新。");

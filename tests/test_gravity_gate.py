@@ -68,6 +68,34 @@ class GravityGateTests(unittest.TestCase):
         status,out=self.run_audit([{'code':code([(0,0,0,0),(25,200,0,0),(7,200,0,280)])}],apply=True)
         self.assertEqual(status,3);self.assertFalse((out/'candidates.json').exists())
 
+    def test_normal_support_push_passes_even_above_editor_boundary(self):
+        status,out=self.run_audit([{'code':code([(0,0,0,0),(25,200,0,0),(7,200,0,280)])}])
+        self.assertEqual(status,0)
+        row=ai.read_json(out/'result.json')['formations'][0]
+        self.assertFalse(row['encodable'])
+        self.assertEqual(row['units'][2]['final']['y'],-33)
+        self.assertTrue(row['units'][2]['acceptedSupportPush'])
+        gravity.verify_audit(out,self.source)
+
+    def test_stacked_support_push_over_one_wall_rejected(self):
+        status,out=self.run_audit([{'code':code([(0,0,130,0),(25,200,100,0),(25,200,66,0),(7,200,100,280)])}])
+        self.assertEqual(status,3)
+        with self.assertRaises(ValueError):gravity.verify_audit(out,self.source)
+
+    def test_short_run_can_pass_normal_push_without_convergence(self):
+        status,out=self.run_audit([{'code':code([(0,0,0,0),(25,200,0,0),(7,200,0,280)])}],max_frames=2)
+        self.assertEqual(status,0)
+        self.assertFalse(ai.read_json(out/'result.json')['formations'][0]['converged'])
+        gravity.verify_audit(out,self.source)
+
+    def test_target_ball_intentional_fall_passes(self):
+        status,out=self.run_audit([{'code':code([(0,0,0,0),(42,250,0,0)])}])
+        self.assertEqual(status,0)
+        row=ai.read_json(out/'result.json')['formations'][0]
+        self.assertTrue(row['units'][1]['acceptedTargetFall'])
+        self.assertGreater(row['units'][1]['maxDown'],300)
+        gravity.verify_audit(out,self.source)
+
     def test_tampered_or_replaced_input_rejected(self):
         status,out=self.run_audit([{'code':code([(0,0,0,0),(7,250,0,280)])}],apply=True)
         self.assertEqual(status,0)

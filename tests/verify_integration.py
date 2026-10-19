@@ -19,7 +19,7 @@ def call_java(req, tmp, name):
     inp, out = tmp/f"{name}-in.json", tmp/f"{name}-out.json"
     inp.write_text(ai.dumps(req), encoding="utf-8")
     subprocess.run(["java", "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-jar",
-                    str(ROOT/"target/gekitotsu_lab-0.6.5.jar"), "--ai", str(inp), str(out)],
+                    str(ROOT/"target/gekitotsu_lab-0.6.6.jar"), "--ai", str(inp), str(out)],
                    cwd=tmp, check=True, timeout=180, capture_output=True)
     return ai.read_json(out)
 
@@ -142,8 +142,6 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--out", required=True)
     p.add_argument("--limit", type=int, default=200)
-    p.add_argument("--compare-jni", action="store_true",
-                   help="Strict comparison with legacy JNI; only valid for a matching ruleset")
     args=p.parse_args()
     output=Path(args.out)
     if output.exists():
@@ -163,9 +161,8 @@ def main():
             plain=observe({**req,"plain":True},tmp,f"plain-{index}")
             assert observed["result"]==plain["result"], f"观察改变了结果：{index}"
             j=java["forward"][index]
-            if args.compare_jni:
-                for key in ("status", "winnerHp", "frames"):
-                    assert observed["result"][key]==j[key], f"JNI与公开核心不同：{index} {key}"
+            for key in ("status", "winnerHp", "frames"):
+                assert observed["result"][key]==j[key], f"JNI与公开核心不同：{index} {key}"
             assert_trace(observed, [req["p1"],req["p2"]])
             detailed=observe({**req,"mode":"detailed"},tmp,f"detailed-{index}")
             assert detailed["result"]==observed["result"]
@@ -201,7 +198,7 @@ def main():
             if index<2 or fort["code"][0]!="0":
                 sample_traces.append(detailed)
             if (index+1)%25==0:
-                print(f"已核验{index+1}/{len(pool)}局：plain、基础模式、详细模式一致；JNI严格对照={args.compare_jni}",flush=True)
+                print(f"已核验{index+1}/{len(pool)}局：原Rust、基础模式、详细模式、JNI结果一致",flush=True)
         # 显式seed、零帧、超时，以及全部非核心类型的构造/槽位映射。
         from test_ai import code
         all_types=code(0,138,138,core=True)+"".join(code(i,(i%10)*33,(i//10)*50) for i in range(1,61))
@@ -218,10 +215,9 @@ def main():
             assert_detail(detailed)
             if frames==0:
                 for u in observed["units"]:
-                    if u["typeId"]==30:
-                        assert u["initialHp"]==100
-                    if u["typeId"]==60:
-                        assert u["initialHp"]==75
+                    if u["typeId"] in (30,60):
+                        expected={30:100,60:75}[u["typeId"]]
+                        assert u["initialHp"]==u["maxHp"]==expected
             if frames==3:
                 assert any(s["coreX"]!=s["coreTargetX"] or s["coreY"]!=s["coreTargetY"] for s in observed["timeline"][-1]["sides"])
             extra.append({"maxFrames":frames,"seed":seed,"result":observed["result"]})
@@ -251,13 +247,13 @@ def main():
         assert sorted(x["slot"] for x in bf["report"]["slots"])==list(range(len(candidate[0]["code"])//6))
         mu=call_java({"action":"matchup","p1":candidate,"p2":pool[:6],"maxFrames":8},tmp,"matchup")
         assert mu["report"]["score"]["scorePercent"]==50 and mu["report"]["score"]["U"]==6
-        result={"status":"passed","ruleset":"catalog-hp-v1","jniComparison":"passed" if args.compare_jni else "not-compared-different-ruleset","fixtureSha256":ai.file_hash(ROOT/"tests/fixtures/standard200.txt"),
-            "javaJarSha256":ai.file_hash(ROOT/"target/gekitotsu_lab-0.6.5.jar"),
+        result={"date":time.strftime("%Y-%m-%d"),"ruleset":"catalog-hp-v1","status":"passed","jniComparison":"passed","fixtureSha256":ai.file_hash(ROOT/"tests/fixtures/standard200.txt"),
+            "javaJarSha256":ai.file_hash(ROOT/"target/gekitotsu_lab-0.6.6.jar"),
             "bundledDllSha256":java["bundledDllSha256"],"observerSha256":ai.file_hash(ROOT/"rust/target/release/gkt-observe.exe"),
             "detailedObserverSha256":ai.file_hash(ROOT/"rust/target/release/gkt-detail.exe"),
             "candidateCodeSha256":ai.digest(candidate[0]["code"].encode()),"checkedMatches":len(pool),
-            "checks":["observer/plain完整结果一致（含双方HP和RNG）","JNI单独执行；严格一致性由jniComparison字段声明","初始槽位和动态实体身份",
-                "恢复后重复半血、恢复满血、实际maxHp、短暂恢复过滤及每实体唯一死亡","观察不保存逐次伤害事件","全60非核心类型初始化、显式seed/零帧","蓝加速器HP=100、电梯壁HP=75",
+            "checks":["observer/plain完整结果一致（含双方HP和RNG）","JNI对照status/winnerHp/frames一致","初始槽位和动态实体身份",
+                "恢复后重复半血、恢复满血、实际maxHp、短暂恢复过滤及每实体唯一死亡","观察不保存逐次伤害事件","全60非核心类型初始化、显式seed/零帧","蓝加速器HP/maxHp=100、电梯壁HP/maxHp=75",
                 "BOSS单删保留纯码","战场槽位映射","帧上限未决计平局"],
             "detailedChecks":["200局详细模式与基础/原Rust结果及基础记录一致","所有单位/墙/核心HP账本平衡","伤害来源有效HP损失占比合计100%",
                 "攻击/治疗源对应具体单位、对象来源链无环且完整","炮玉子弹爆炸追溯","仅采样空中位置"],

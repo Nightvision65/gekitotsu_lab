@@ -1,6 +1,6 @@
 # gekitotsu_lab
 
-Lab **0.6.5**、内蔵GekitotsuKit **1.9.1**。バージョンは個別に管理します。
+Lab **0.6.6**、内蔵GekitotsuKit **1.9.1**。バージョンは個別に管理します。
 
 **軽量なツールキットから、大規模言語モデルの実験室へ。**
 
@@ -89,7 +89,7 @@ python tools/ai/ai.py --timeout 30 formation --file docs/ai/examples/candidate.t
 ソースから構築したGUIの起動：
 
 ```powershell
-java -jar target/gekitotsu_lab-0.6.5.jar
+java -jar target/gekitotsu_lab-0.6.6.jar
 ```
 
 CLI/JSONの使い方は[ツール手順](docs/ai/03-tool-runbook.md)と[機能一覧](docs/ai/capabilities.md)を参照してください。ローカル配布版の激突Kit.exeも利用できますが、配布バイナリとソースビルドは別のバージョンとして扱います。
@@ -134,7 +134,7 @@ flowchart LR
 
 ## エンジンの版と証拠
 
-高速評価は選択したJAR内のJNI DLLを使用し、ソース観測器は固定Rustコアの派生版を使用します。現行ソースのcatalog-hp-v1は青加速器HP100、電梯壁HP75ですが、元配布DLLは以前のルールを保持します。ソースの再ビルドはそのDLLを置き換えません。比較・再生前に[HPルール](docs/ai/unit-hp-rules.md)と[エンジン適用範囲](docs/ai/01-project-map.md#引擎核验与证据范围)を確認してください。
+高速評価は選択したJAR内のJNI DLLを使用し、ソース観測器は固定Rustコアの派生版を使用します。現行ソースのcatalog-hp-v1は青加速器HP100、電梯壁HP75ですが、現行の内蔵JNIも同じルールに対応します。未修正の旧DLLは以前のルールを保持し、Javaの再ビルドは既存のネイティブリソースを組み込みますがJNIを再構築しません。比較・再生前に[HPルール](docs/ai/unit-hp-rules.md)と[エンジン適用範囲](docs/ai/01-project-map.md#引擎核验与证据范围)を確認してください。
 
 編成コード、物理側、フレーム上限、seed方針、エンジン・アダプタのハッシュが証拠の識別条件です。診断は対応する評価と結果が一致してから説明に使用します。静的検査が保証するのは宣言されたモデルと側であり、シミュレータ結果は元Flash版との同等性を保証しません。
 

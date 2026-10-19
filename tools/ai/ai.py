@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def default_jar():
     """Prefer a source build; portable releases keep the same JAR under app/."""
-    name = "gekitotsu_lab-0.6.5.jar"
+    name = "gekitotsu_lab-0.6.6.jar"
     built = ROOT / "target" / name
     return built if built.is_file() else ROOT / "app" / name
 

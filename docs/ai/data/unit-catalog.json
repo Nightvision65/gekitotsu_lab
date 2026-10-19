@@ -891,7 +891,7 @@
   ],
   "provenance": {
     "source": "app/gekitotsu_java-1.9.1.jar",
-    "jarSha256": "da7b84440ec1e9a4377e9c398dcb7ce38b6c48ad00f6022d15750a47c1491a60",
+    "jarSha256": "43799e90230cc73594bb6dc6d8ee5fa9d5b25f6b42af7d4eca868f49f9cae049",
     "method": "KitLab catalog",
     "binaryProvenance": "app/kit-manifest.json"
   }

@@ -163,6 +163,10 @@ def main():
             probe = json.loads(response.read_text(encoding='utf-8'))
             if 'error' in probe or not probe.get('rustAvailable') or probe.get('labVersion') != version or probe.get('kitVersion') != '1.9.1':
                 raise RuntimeError(str(probe))
+            native_identity = json.loads((image / 'app/kit-manifest.json').read_text(encoding='utf-8'))
+            if (probe.get('bundledDllSha256') != native_identity['nativeLibrary']['sha256']
+                    or probe.get('engineVersion') != native_identity['engineVersion']):
+                raise RuntimeError('便携包实际JNI与分发清单不符')
             run([sys.executable, 'tools/ai/ai.py', '--store', Path(smoke) / 'store.sqlite', 'probe'], image, 60, True)
         for path in (image / '1P.txt', image / '2P.txt'):
             assert path.read_bytes() == b''
@@ -174,7 +178,7 @@ def main():
                 payloads[path.relative_to(image).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
         manifest = {'project': artifact, 'version': version, 'sourceCommit': revision,
                     'kitVersion': probe['kitVersion'], 'platform': 'windows-x64', 'guiInputs': 'empty', 'files': payloads,
-                    'engineRules': {'sourceObservers': 'catalog-hp-v1', 'bundledJNI': 'legacy-149e365'},
+                    'engineRules': {'sourceObservers': 'catalog-hp-v1', 'bundledJNI': 'catalog-hp-v1'},
                     'smokeChecks': ['packaged-launcher-probe-native-available', 'packaged-python-jar-discovery',
                                     'packaged-observer-detail-results', 'packaged-gravity-and-source-fingerprint',
                                     'empty-gui-inputs', 'no-private-workspace-directories']}
