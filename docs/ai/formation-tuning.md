@@ -56,6 +56,8 @@ python tools/ai/verify_pool.py --run experiments/next/training --candidates expe
 
 ## 后台评测与续跑
 
+需要分工时按[子代理协作](subagent-workflow.md)委派一个有界研究问题。优先主代理后台测阵、子代理读已核验证据；运行任务较长且有独立研究时也可整段委派执行，保持每个SQLite/raw父目录唯一写者。短任务包与交接不能省略本页门槛。
+
 默认后台非阻塞，保存命令、PID/会话、日志、输出、冻结输入及真实超时；使用可返回会话的方式或`Start-Process -WindowStyle Hidden`。确认启动后继续相关独立研究，不频繁轮询。`--time-limit`只在批间检查，单批`--timeout`与监督器总超时分别设置，工具等待时长不能代替它们；超时先独立查进程、日志和结果再处理。
 
 进度读`progress.json/summary.json`，最终以独立verify为准；raw已落盘而汇总未刷新时，完成数0不表示没有对战。在跑输入和构建冻结，只读已完整发布且核验的结果。新诊断独立目录与SQLite父目录、少量线程，避免共写或挤占主评测；顺序可复用同库，跨库汇总保留raw路径和哈希。

@@ -13,6 +13,7 @@
 | 单局/画像/热图/贡献/详细重放与查询 | [ai](../ai.py)、[detail_slice](../detail_slice.py) | 根据报告改善/退步索引选少量局，不默认启动全量遥测 |
 | 建档、冻结输入、文件与SQLite引用核验 | [experiment.py](experiment.py) | `init / snapshot / verify-snapshot`，复用[STATE及元数据](../../../docs/ai/templates/STATE.md) |
 | 找出又被复制的脚本与函数 | [script_inventory.py](script_inventory.py) | 只做文件哈希/静态AST盘点，不导入、不执行旧实验 |
+| 子代理短任务与实际token核算 | [协作流程](../../../docs/ai/subagent-workflow.md)、[agent_usage.py](agent_usage.py) | `templates/agent-task.md`；只读明确指定的本地会话计数，不输出正文 |
 
 ## 建档与单步运行
 

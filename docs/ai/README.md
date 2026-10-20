@@ -18,6 +18,7 @@
 | 画像、热图、贡献和伤害来源能证明什么 | [分析使用](knowledge/analysis-usage.md) |
 | 字段、索引、详细重放与查询 | [数据契约](data-contract.md)、[详细模式](detailed-mode.md)、[能力地图](capabilities.md) |
 | 保存什么、怎样交接和沉淀知识 | [实验契约](05-experiment-contract.md)、[STATE模板](templates/STATE.md) |
+| 怎样用子代理分工、短交接并核算消耗 | [子代理协作](subagent-workflow.md) |
 
 首发/持续周期与真实命中查[弹幕时序](13-volley-timing.md)，防区位置、墙承伤与支撑分离查[防守部署](knowledge/defensive-positioning.md)，来源映射与模块迁移查[批量实验](knowledge/batch-design-dedup-defense.md)。[任务模板](PROMPTS.md)只填写本轮目标与约束。
 
