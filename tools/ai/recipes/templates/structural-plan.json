@@ -1,0 +1,20 @@
+{
+  "base": "experiments/REPLACE_RUN/inputs/base.json",
+  "maxCandidates": 100,
+  "rules": {
+    "profile": "structural-fixed-speed-v1",
+    "parentCode": "REPLACE_PARENT_CODE",
+    "budget": 1500,
+    "coordinates": "kit-workbench",
+    "coreType": 0,
+    "accelLevel": "REPLACE_ACCEL_LEVEL",
+    "fixed": [],
+    "pairs": []
+  },
+  "groups": [{
+    "name": "REPLACE_GROUP",
+    "hypothesis": "REPLACE_HYPOTHESIS",
+    "template": "REPLACE_WITH_ORDERED_UNIT_ARRAY",
+    "axes": []
+  }]
+}

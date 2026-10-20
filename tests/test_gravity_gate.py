@@ -1,4 +1,4 @@
-"""Native integration: upward/downward gravity, normalization, and no unreviewed battles."""
+"""Native integration: static movement reports and stable-code normalization."""
 import argparse
 import contextlib
 import io
@@ -57,13 +57,6 @@ class GravityGateTests(unittest.TestCase):
         with self.assertRaises(ValueError):gravity.verify_audit(out,self.source)
         with self.assertRaises(FileExistsError):gravity.audit(argparse.Namespace(input=str(self.source),out=str(out),max_frames=240,stable_frames=2,timeout=60))
 
-    def test_no_battle_before_gravity_gate(self):
-        self.source.write_text(ai.dumps([{'code':code([(0,0,0,0),(7,250,0,280)])}]),encoding='utf-8')
-        args=argparse.Namespace(candidates=str(self.source),audit_out=str(self.root/'preflight'),max_frames=240,stable_frames=12,timeout=60,
-            evaluation_timeout=60,runner_args=['--','--opponents',str(self.root/'MUST-NOT-OPEN'),'--out',str(self.root/'MUST-NOT-CREATE')])
-        with contextlib.redirect_stdout(io.StringIO()):self.assertEqual(gravity.evaluate(args),3)
-        self.assertFalse((self.root/'MUST-NOT-CREATE').exists())
-
     def test_unencodable_and_short_run_never_publish(self):
         status,out=self.run_audit([{'code':code([(0,0,0,0),(25,200,0,0),(7,200,0,280)])}],apply=True)
         self.assertEqual(status,3);self.assertFalse((out/'candidates.json').exists())
@@ -76,6 +69,48 @@ class GravityGateTests(unittest.TestCase):
         self.assertEqual(row['units'][2]['final']['y'],-33)
         self.assertTrue(row['units'][2]['acceptedSupportPush'])
         gravity.verify_audit(out,self.source)
+
+    def test_verify_y_zero_support_push_has_no_height_cap(self):
+        original=code([(0,0,0,0),(25,200,0,0),(7,200,0,280)])
+        status,out=self.run_audit([{'code':original}])
+        self.assertEqual(status,0)
+        data=ai.read_json(out/'result.json')
+        self.assertEqual(data['supportPushInitialY'],0)
+        self.assertNotIn('maxSupportPushUp',data)
+        # Synthetic trajectory checks the verifier's policy independently of wall height.
+        unit=data['formations'][0]['units'][2]
+        unit['maxUp']=100
+        unit['delta']['y']=-100
+        unit['final']['y']=-100
+        (out/'result.json').write_text(ai.dumps(data),encoding='utf-8')
+        gate=ai.read_json(out/'gate.json');gate['resultSha256']=ai.file_hash(out/'result.json')
+        (out/'gate.json').write_text(ai.dumps(gate),encoding='utf-8')
+        gravity.verify_audit(out,self.source)
+
+    def test_nonzero_y_support_push_under_35_rejected(self):
+        status,out=self.run_audit([{'code':code([(0,0,130,0),(25,200,1,0),(7,200,1,280)])}])
+        self.assertEqual(status,3)
+        row=ai.read_json(out/'result.json')['formations'][0]
+        self.assertEqual(row['units'][2]['maxUp'],33)
+        self.assertFalse(row['units'][2]['acceptedSupportPush'])
+        with self.assertRaises(ValueError):gravity.verify_audit(out,self.source)
+        # Even a reported pass cannot bypass the verifier's initial-y check.
+        data=ai.read_json(out/'result.json');data['formations'][0]['auditPassed']=True
+        (out/'result.json').write_text(ai.dumps(data),encoding='utf-8')
+        gate=ai.read_json(out/'gate.json');gate['passed']=True;gate['resultSha256']=ai.file_hash(out/'result.json')
+        (out/'gate.json').write_text(ai.dumps(gate),encoding='utf-8')
+        with self.assertRaises(ValueError):gravity.verify_audit(out,self.source)
+
+    def test_legacy_policy_evidence_requires_new_audit(self):
+        status,out=self.run_audit([{'code':code([(0,0,0,0),(25,200,0,0),(7,200,0,280)])}])
+        self.assertEqual(status,0)
+        manifest=ai.read_json(out/'manifest.json')
+        manifest['policy']='static-support-gravity-v2'
+        manifest['fingerprint']['policy']='static-support-gravity-v2'
+        (out/'manifest.json').write_text(ai.dumps(manifest),encoding='utf-8')
+        gate=ai.read_json(out/'gate.json');gate['manifestSha256']=ai.file_hash(out/'manifest.json')
+        (out/'gate.json').write_text(ai.dumps(gate),encoding='utf-8')
+        with self.assertRaisesRegex(ValueError,'工具版本已改变'):gravity.verify_audit(out,self.source)
 
     def test_stacked_support_push_over_one_wall_rejected(self):
         status,out=self.run_audit([{'code':code([(0,0,130,0),(25,200,100,0),(25,200,66,0),(7,200,100,280)])}])

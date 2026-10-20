@@ -12,7 +12,7 @@ candidate-002&<纯阵码>
 
 尖括号是占位符，不能传给模拟器。阵名不含 `/`、`&`、`#` 或换行。名称与编码分开保存，代码哈希只对纯阵码计算。实际示例见 [candidate.txt](examples/candidate.txt)。
 
-`Setting.parseFortsRaw` 按 `/` 切分，再取最后一个 `&` 后的部分，并删除非 ASCII 字母数字。两条 `name&code` 只用换行连接，会被误读成一条。旧阵集常在 `&` 后夹作者署名：导入时保留原文，再显式清洗、记录对应关系、核对条数与每条编码，不把“解析没报错”当成完整导入。
+`Setting.parseFortsRaw`按`/`切分，再取最后一个`&`后的部分，并删除非ASCII字母数字。两条`name&code`只用换行连接会误读成一条。导入非规范容器时保留原文，显式规范化并保存映射，核对条数与逐条编码，不把“解析没报错”当完整导入。
 
 本套 `kit_lab.py` 故意严格拒绝非规范字符、缺失分隔符和 `#HP`，不会自动吞掉异常条目。它不会自动去重：本工作区标准200必须保留冻结的全部条目和顺序；另建评测池时才自行确定去重与权重规则。
 
@@ -59,32 +59,7 @@ Kit 工作台会把核心 `x/y` 裁到 `0..276`，普通单位 `x` 裁到 `0..34
 
 ## 正向编码
 
-对工作台坐标重新编码：
-
-```python
-ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-def encode_unit(unit_id, x, y, r, *, core=False):
-    assert 0 <= r < 360
-    assert 0 <= x <= (276 if core else 348)
-    assert 0 <= y <= (276 if core else 349)
-    if core:
-        type_char = {0: "0", 61: "1", 62: "2"}[unit_id]
-        raw_x, raw_y = x + 52, y + 58
-    else:
-        assert 1 <= unit_id <= 60
-        type_char = ALPHABET[unit_id]
-        raw_x, raw_y = x + 16, y + 20
-    number = r * 1_000_000 + raw_x * 1000 + raw_y
-    digits = ["0"] * 5
-    for index in range(4, -1, -1):
-        number, digit = divmod(number, 61)
-        digits[index] = ALPHABET[digit]
-    assert number == 0
-    return type_char + "".join(digits)
-```
-
-以上 Python 代码须在 `conda activate opencode` 后执行。生成后调用 `audit`，核对 `roundtripCodeEqual=true`、成本、单位数及全部坐标，并检查 `encodedHasHpSuffix`。普通核心满血码通常还有 `roundtripEqual=true`。未修改槽位应保持原六字符块不变。
+复用[formation_codec.py](../../tools/ai/formation_codec.py)的decode/encode，不在实验复制编码器。工作台坐标按上表加偏移，再将`r*1000000 + raw_x*1000 + raw_y`编码为五位base61并加类型字符。生成后audit核对`roundtripCodeEqual=true`、成本、单位数、全部坐标和`encodedHasHpSuffix`；普通核心满血码通常还有`roundtripEqual=true`。未修改槽位保持原六字符块，Python先激活opencode。
 
 ## 顺序与槽位
 
@@ -109,8 +84,8 @@ def encode_unit(unit_id, x, y, r, *, core=False):
 
 工作台 `Formation` 支持 `#` 后的 HP 编码。每 3 个槽位的 HP 打包为 `hp0*57600 + hp1*240 + hp2`，再编码成 4 位 base61，尾组使用 239 填充。
 
-**普通对战的 `Setting.parseFortsRaw` 会剥离 `#HP`，`CompiledFort` 不携带初始 HP；独立 Rust 的编译数据也没有这个字段。** 不允许把残局码送入这些入口后仍宣称测试的是残局。旧 Rust `parse_forts` 甚至不会像新 Java 那样先剥离 HP；不要依赖其文本清洗来处理残局。
+**普通对战的`Setting.parseFortsRaw`会剥离`#HP`，`CompiledFort`与独立Rust编译数据均不携带初始HP。** 不得把残局码送入这些入口后宣称测试的是残局，不依赖文本清洗处理HP。
 
 本任务的默认优化对象为满血普通阵。若要做残局，必须重新确认真实支持残局初始状态的运行环境和输入接口，另建实验规范。
 
-**1.9.1 的 BOSS 工作台解码细节**：`Unit.decodeAsCore` 先按首字符下标构造 Unit，再把 ID 改成 61/62，没有同步重新初始化 HP。实测标准200中的 BOSS 阵“前中激光要塞(带突) 圣耀赤轮”会被工作台对象读成核心 HP=10，并在回编码时新增 `#HP`。其纯阵码部分回编码仍一致。评测标准200时直接使用冻结的原纯码，不把工作台回编码输出批量写回基准；也不要把这个 HP 字段当成引擎实际初始核心血量。
+`Unit.decodeAsCore`先按首字符下标构造Unit，再改ID为61/62，不重建HP；BOSS工作台对象可能带与战斗构造不同的HP并在回编码时新增`#HP`。评测用冻结纯码，不批量回写工作台输出到对手池；对象HP不能当实际初始核心血量。

@@ -1,0 +1,8 @@
+[
+  {"name": "has-assault-wall", "anyIds": [55, 56]},
+  {"name": "both-assault-walls", "allIds": [55, 56]},
+  {"name": "no-assault-wall", "noIds": [55, 56]},
+  {"name": "four-or-more-cannons", "counts": {"9": {"min": 4}}},
+  {"name": "accel-four-or-more", "accelMin": 4},
+  {"name": "normal-core-upper-band", "core": {"types": [0], "yMin": 0, "yMax": 139}}
+]

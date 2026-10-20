@@ -38,7 +38,7 @@ python tools/ai/ai.py verify --artifact <详细artifact>
 
 `attack`表示单位在该帧实际创建攻击对象，能区分近战、弹丸、激光与BOSS攻击；持续攻击后续伤害由damage记录。`attackObjects`数发射/命中体数量，`attackActions`按同单位同帧合并，不能把散弹的多弹体当成多轮攻击。没有生成攻击对象的计时/瞄准阶段不冒充有效开火。
 
-`detailSummary.eventPolicy=shield-as-ability-v2`将壁玉创建盾区（objects.kindCode=34）记为`ability`，不计入攻击次数。旧版没有此eventPolicy字段，曾把开壁混入attack；读取旧存证时可按对象kindCode及ownerUnitId核对盾区birthFrame，不能因ability查询为空就认定没有开壁。旧raw保持原样，新二进制使用新的缓存身份。
+`detailSummary.eventPolicy=shield-as-ability-v2`将壁玉创建盾区（objects.kindCode=34）记为`ability`，不计入攻击次数。按实际schema、对象kindCode、ownerUnitId与birthFrame核对盾区，查attack为空不能证明没有开壁；不同schema或二进制的证据保留各自身份。
 
 ## 炮玉、爆炸与控制权
 

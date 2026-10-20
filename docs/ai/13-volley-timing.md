@@ -4,7 +4,7 @@
 
 ## 1 初始化模数和攻击周期分开算
 
-依据固定Rust提交`149e365221b09330a72d9a6a1804605e3ce4e1f5`，当前源码位于`rust/vendor/gkt-core/src/`；本地HP修正不改变本页计时公式，具体规则身份见[版本说明](unit-hp-rules.md)。`engine/mod.rs::unit_make`对这些普通单位使用工作台x与raw坐标的偏移16，初始化：
+当前源码位于`rust/vendor/gkt-core/src/`，构建身份见[HP规则](unit-hp-rules.md)。`engine/mod.rs::unit_make`对这些普通单位使用工作台x与raw坐标的偏移16，初始化：
 
 ```text
 delay = (workbench_x + 16) % initialization_modulus
@@ -46,7 +46,7 @@ first_trigger_effective_increments = trigger + delay
 
 [炮](knowledge/units/09-炮玉.md)和[击](knowledge/units/32-击玉.md)留下爆炸，[射](knowledge/units/50-射玉.md)在扫描终点留下计时攻击圆；不能把它们都按普通飞行弹计算。发射相位、抵达时刻、持续覆盖和本体受伤次数是不同序列。
 
-同火线混合火力可比较最小公倍数覆盖，但不同方向、射程、存活或职责不能未经论证混成一条序列。标准200的多火力及炮间隔60静态统计已列入[炮玉](knowledge/units/09-炮玉.md)与[覆盖清单](knowledge/units/coverage.json)；它们是布局线索，不是逐次命中实证。
+多火力及炮间隔60的静态布局线索见[炮玉](knowledge/units/09-炮玉.md)与[覆盖清单](knowledge/units/coverage.json)，不是逐次命中实证。
 
 ## 4 节奏与强度的关系
 
@@ -58,7 +58,7 @@ first_trigger_effective_increments = trigger + delay
 
 ## 5 战场诊断的索引与边界
 
-槽位/物理侧位映射以[数据契约](data-contract.md)为准，旧GUI与当前API不能混用数组索引。热图、样本数、共同时间窗和来源解释统一查[分析使用](knowledge/analysis-usage.md)。在场弹幕快照不是逐次发射/命中事件；没有对应证据时，保留“尚不能确认节拍改变了什么”。
+槽位/物理侧位映射以[数据契约](data-contract.md)为准，GUI与API索引分开。热图、样本数、共同时间窗和来源解释查[分析使用](knowledge/analysis-usage.md)。在场弹幕快照不是逐次发射/命中事件，证据不足时保留不确定性。
 
 ## 6 有逐次事件后：出手、命中与位置分别核对
 

@@ -4,7 +4,7 @@
 
 **改阵前按实际解码ID阅读[单位百科](knowledge/units/README.md)中的共通规则和本阵每类单位页，包括核心、墙、加速器与辅助。** 同任务同版本可引用已有阅读，新增单位或职责变化时补读；研究对方单位也查同一百科。常规改阵不再强制逐一读全部单位源码，缺项、版本变化、机制冲突或新疑问时再按页尾定位补查。
 
-适用环境须按冻结后端核对：百科机制基础为Rust149e365，当前源码和修正发行包JNI采用[HP修正catalog-hp-v1](unit-hp-rules.md)，未经补丁的原发行包仍属旧规则。源码机制、用户约束、静态样本与实测证据分开，不把两种HP规则或不同后端的成绩混用。
+适用环境按冻结后端核对：当前源码与发行包JNI采用[catalog-hp-v1](unit-hp-rules.md)。源码机制、用户约束、静态样本与实测证据分开，不同构建或规则的成绩不混用。
 
 ## 1 坐标改变的不只是位置
 
@@ -47,7 +47,7 @@ initial_cnt = -(raw_x % speed)
 
 ## 5.1 同初始加速等级，不代表同耐久或同战中速度
 
-构造、HP版本、加速贡献与死亡路径分别查[红加速器](knowledge/units/29-红加速器.md)、[蓝加速器](knowledge/units/30-蓝加速器.md)，共通车体规则见[共通机制](knowledge/units/common.md)。等初始等级换红蓝仍会改变数量、预算、平台、存活和再加速；强弱必须实测。当前HP修正规则与旧DLL的区别见[版本说明](unit-hp-rules.md)。
+构造、加速贡献与死亡路径查[红加速器](knowledge/units/29-红加速器.md)、[蓝加速器](knowledge/units/30-蓝加速器.md)，车体规则见[共通机制](knowledge/units/common.md)。等初始等级换红蓝仍改变数量、预算、平台、存活和再加速，强弱必须实测；构建身份见[HP规则](unit-hp-rules.md)。
 
 ## 5.2 重力与支撑：y微调应围绕实际出手高度
 
@@ -55,10 +55,10 @@ initial_cnt = -(raw_x % speed)
 
 **微调用法：** 记录初始y、支撑对象与边缘、首发时实际y，以及是否切换jump/ground。同一平台上相邻y可能落到相同高度，但落地前的攻击位置仍可能不同；x越过平台边缘也可能改变y轨迹。优先比较平台内、平台边缘两侧及落地前后有区别的高度，再对有力区域做x/y联合小网格，不因一段y持平就排除整个y方向。不能把普通兵玉互相重叠当作可叠人支撑。
 
-源码：`ball.rs::land_inner/jump_inner/ground_inner`、`mod.rs::wall_hit_own_id/wall_hint_hit`、`wall.rs::step_common/step_box/step_ex`。本节是固定源码推导，尚未新增DLL逐帧验证。
+源码：`ball.rs::land_inner/jump_inner/ground_inner`、`mod.rs::wall_hit_own_id/wall_hint_hit`、`wall.rs::step_common/step_box/step_ex`。源码推导不冒充DLL逐帧实测。
 
 
-**初始合同与战中防区分开：** 生成器保持有向dx/dy只证明阵码初始关系；成组x平移仍可能让其中一枚越过支撑边缘，实际落稳高度改变。不能将“初始双剃dy固定”写成“全战实际dy固定”。平台控制先确认哪枚墙直接改变目标高度，其他墙也可能通过承伤、修复和时序影响胜负；短帧位置相同不能用于合并不同纯码。
+**初始关系与战中防区分开：** 保持有向dx/dy只证明阵码初始关系，成组x平移仍可能让其中一枚越过支撑边缘而改变稳定高度，不能称全战实际dy固定。先确认直接支撑，其他墙仍可能通过承伤、修复和时序影响胜负；短帧位置相同不能证明不同纯码战斗等价。
 
 ## 5.3 弹道：角度同时改变速度分量与出生位置
 
@@ -110,7 +110,7 @@ initial_cnt = -(raw_x % speed)
 
 ## 6 参考已测阵池时先匹配结构和位置
 
-参考高分来源时，先匹配整体战术、加速、核心、兵种数量及绝对/相对位置，再借鉴局部配置；来源成绩不算本阵证据。完整迁移与分离对照方法统一在[搜索设计](04-search-workflow.md#从已有强阵提取参考)，具体筛法与样本数留本地实验记录。不在机制正文反复维护三池阶段和来源选择流程。
+参考强阵先匹配结构与位置，不能仅凭角度相近迁移配置；完整方法见[搜索设计](04-search-workflow.md#从已有强阵提取参考)。来源成绩不算本阵证据。
 
 ## 7 机制在搜索中的使用
 
@@ -122,4 +122,4 @@ initial_cnt = -(raw_x % speed)
 
 常规阅读以[单位百科](knowledge/units/README.md)为入口，各单位页给出构造、行为及生成对象的源码符号。遇到缺项、版本变化、机制冲突或新问题，再有针对性核对源码，并将结论及适用规则补回单位页；共享移动/支撑/受伤/顺序问题更新[共通规则](knowledge/units/common.md)。
 
-当前源码位于[rust/vendor/gkt-core/src](../../rust/vendor/gkt-core/src/)，身份见[PROVENANCE](../../rust/vendor/PROVENANCE.json)及[source-hashes](../../rust/vendor/source-hashes.json)，原始wall.rs和原47文件哈希另存。不要仅凭路径或上游提交号把当前修正视为旧DLL的完整等价实现。
+当前源码位于[rust/vendor/gkt-core/src](../../rust/vendor/gkt-core/src/)，身份见[PROVENANCE](../../rust/vendor/PROVENANCE.json)及[source-hashes](../../rust/vendor/source-hashes.json)。路径或上游提交号不能代替实际构建核验。

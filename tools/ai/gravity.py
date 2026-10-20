@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""批量开局重力审核、应用稳定态，以及强制先审核的候选评测入口。"""
+"""批量静态重力观测与可编码稳定态转换；搜索去重由recipes/stable_dedup.py执行。"""
 from __future__ import annotations
 import argparse
 import os
@@ -15,8 +15,8 @@ ROOT = ai.ROOT
 CRATE = ROOT / 'rust/gravity'
 BINARY = CRATE / 'target/release' / ('gkt-gravity.exe' if os.name == 'nt' else 'gkt-gravity')
 BUILD = CRATE / 'build.json'
-POLICY = 'static-support-gravity-v2'
-MAX_SUPPORT_PUSH_UP = 35.0
+POLICY = 'static-support-gravity-v3'
+SUPPORT_PUSH_INITIAL_Y = 0
 EPSILON = 0.001
 
 
@@ -145,19 +145,19 @@ def audit(args, apply=False):
             gate['candidateOutputSha256']=ai.file_hash(out/'candidates.json')
         save(out/'aliases.json', aliases)
     save(out/'gate.json', gate)
-    lines = ['# 开局重力审核', '', '政策：所有特殊效果关闭；车板、核心、全部墙体固定初始形状。仅调用实际Ball.land。全程上移容限35px，的玉（ID42）豁免下落限制，其他兵玉拒绝下落；连续静止与收敛仅作观察，不作审核门禁。', '',
+    lines = ['# 开局重力审核', '', '政策：所有特殊效果关闭；车板、核心、全部墙体固定初始形状。仅调用实际Ball.land。仅原始y=0的兵玉允许被支撑向上挤出，不设上移高度上限；其他初始y拒绝超出浮点容差的上移。的玉（ID42）豁免下落限制，其他兵玉拒绝下落；连续静止与收敛仅作观察，不作审核门禁。', '',
              f"通过：{passed}；输入{len(rows)}阵，变化{gate['changedFormations']}阵/{gate['changedUnits']}单位，未收敛{gate['nonConverged']}，不可编码{gate['unencodable']}。", '',
              '| 索引 | 阵名 | 收敛 | 移动单位 | 最大上移 | 最大下落 |', '|---|---|---|---:|---:|---:|']
     for i,r in enumerate(results):
         lines.append(f"| {i} | {r['name'].replace('|','／')} | {r['converged']} | {r['changedUnits']} | {max(u['maxUp'] for u in r['units']):.2f} | {max(u['maxDown'] for u in r['units']):.2f} |")
-    lines += ['', '各槽位初始/最终坐标、位移、支撑与最后移动帧见result.json。应用模式只在全部输出经再次审核、幂等通过后发布candidates.json。新码需重新测战斗成绩。']
+    lines += ['', '位移检查未通过是布局偏差诊断，不直接淘汰搜索候选；统一稳定态去重后由本轮预期验收。各槽位初始/最终坐标、位移、支撑与最后移动帧见result.json。应用模式只在全部输出经再次审核、幂等通过后发布candidates.json。新码需重新测战斗成绩。']
     (out/'REPORT.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
     print(f"重力{'应用' if apply else '审核'}：{'通过' if passed else '未通过'}；变化{gate['changedFormations']}/{len(rows)}阵，{gate['changedUnits']}单位；结果 {out}")
     return 0 if passed else 3
 
 
 def verify_audit(folder, source):
-    """Verify immutable audit evidence before resuming evaluations. No simulations."""
+    """Verify raw movement/apply evidence; this is not search acceptance. No simulations."""
     folder=Path(folder);manifest=ai.read_json(folder/'manifest.json');gate=ai.read_json(folder/'gate.json')
     if manifest['inputSha256']!=ai.file_hash(source) or manifest['fingerprint']!=fingerprint():
         raise ValueError('重力审核输入或工具版本已改变，须在新目录重新审核')
@@ -174,42 +174,22 @@ def verify_audit(folder, source):
             raise ValueError('源阵无完整可编码稳定态')
         if gate['appliedResultSha256']!=ai.file_hash(folder/'result-applied.json') or gate['candidateOutputSha256']!=ai.file_hash(folder/'candidates.json'):
             raise ValueError('应用结果哈希不同')
-        applied=ai.read_json(folder/'candidates.json');results=ai.read_json(folder/'result-applied.json')['formations']
+        applied=ai.read_json(folder/'candidates.json');data=ai.read_json(folder/'result-applied.json');results=data['formations']
         if [r['code'] for r in applied]!=[r['code'] for r in results]:raise ValueError('应用结果顺序不同')
     def permitted(unit):
         return (abs(unit['delta']['x'])<=EPSILON
-                and 0<=unit['maxUp']<=MAX_SUPPORT_PUSH_UP+EPSILON
+                and 0<=unit['maxUp']
+                and (unit['maxUp']<=EPSILON or
+                     (unit['category']=='ball' and unit['initial']['y']==SUPPORT_PUSH_INITIAL_Y))
                 and 0<=unit['maxDown']
                 and (unit['maxDown']<=EPSILON or unit['typeId']==42)
                 and -unit['maxUp']-EPSILON<=unit['delta']['y']<=unit['maxDown']+EPSILON)
-    passed=(data.get('maxSupportPushUp')==MAX_SUPPORT_PUSH_UP and
+    passed=(data.get('policy')==POLICY and data.get('supportPushInitialY')==SUPPORT_PUSH_INITIAL_Y and
             all(r['auditPassed'] and all(permitted(u) for u in r['units']) for r in results))
     if manifest['mode']=='apply':
         passed=passed and all(r['changedUnits']==0 and r['appliedCode']==r['code'] for r in results)
     if not passed or not gate['passed']:raise ValueError('重力门禁未通过')
     return gate
-
-
-def evaluate(args):
-    if '--candidates' in args.runner_args:
-        raise ValueError('--candidates只能在重力入口指定一次')
-    # The evaluator receives exactly the original, audited bytes. It may never apply silently.
-    audit_args = argparse.Namespace(**vars(args), input=args.candidates, out=args.audit_out)
-    if Path(args.audit_out).exists():
-        verify_audit(args.audit_out,args.candidates);status=0
-        print('已核验既有重力门禁，复用审核证据。',flush=True)
-    else:status = audit(audit_args)
-    if status:
-        print('重力门禁未通过，未启动任何对局；修正布局或先apply再重测。')
-        return status
-    gate = ai.read_json(Path(args.audit_out)/'gate.json')
-    manifest = ai.read_json(Path(args.audit_out)/'manifest.json')
-    if manifest['inputSha256']!=ai.file_hash(args.candidates) or not gate['passed']:
-        raise ValueError('审核后候选改变')
-    extra = args.runner_args[1:] if args.runner_args[:1]==['--'] else args.runner_args
-    command = [sys.executable, str(ROOT/'tools/ai/evaluate_pool.py'), '--candidates',args.candidates,*extra]
-    # Child runner has its own per-batch timeout and time-limit; outer bound is explicit too.
-    return bounded(command,args.evaluation_timeout)
 
 
 def main(argv=None):
@@ -219,23 +199,17 @@ def main(argv=None):
     sub=p.add_subparsers(dest='command',required=True)
     b=sub.add_parser('build');b.add_argument('--timeout',type=float,default=240)
     v=sub.add_parser('verify');v.add_argument('--run',required=True);v.add_argument('--input',required=True)
-    for name in ('audit','apply','evaluate'):
+    for name in ('audit','apply'):
         q=sub.add_parser(name)
-        if name=='evaluate':
-            q.add_argument('--candidates',required=True);q.add_argument('--audit-out',required=True)
-            q.add_argument('--evaluation-timeout',type=float,default=3600)
-        else:
-            q.add_argument('--input',required=True);q.add_argument('--out',required=True)
+        q.add_argument('--input',required=True);q.add_argument('--out',required=True)
         q.add_argument('--max-frames',type=int,default=240)
         q.add_argument('--stable-frames',type=int,default=12)
         q.add_argument('--timeout',type=float,default=120)
-        if name=='evaluate':q.add_argument('runner_args',nargs=argparse.REMAINDER)
     args=p.parse_args(argv)
     if args.command=='verify':verify_audit(args.run,args.input);print('重力证据核验通过。');return 0
     if args.timeout<=0: p.error('进程超时须为正数')
     if args.command=='build':build(args);return 0
     if not 2<=args.stable_frames<=args.max_frames<=2000: p.error('要求2 <= stable-frames <= max-frames <= 2000')
-    if args.command=='evaluate':return evaluate(args)
     return audit(args,apply=args.command=='apply')
 
 

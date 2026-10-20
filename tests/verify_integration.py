@@ -19,7 +19,7 @@ def call_java(req, tmp, name):
     inp, out = tmp/f"{name}-in.json", tmp/f"{name}-out.json"
     inp.write_text(ai.dumps(req), encoding="utf-8")
     subprocess.run(["java", "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-jar",
-                    str(ROOT/"target/gekitotsu_lab-0.6.6.jar"), "--ai", str(inp), str(out)],
+                    str(ROOT/"target/gekitotsu_lab-0.6.7.7.jar"), "--ai", str(inp), str(out)],
                    cwd=tmp, check=True, timeout=180, capture_output=True)
     return ai.read_json(out)
 
@@ -248,7 +248,7 @@ def main():
         mu=call_java({"action":"matchup","p1":candidate,"p2":pool[:6],"maxFrames":8},tmp,"matchup")
         assert mu["report"]["score"]["scorePercent"]==50 and mu["report"]["score"]["U"]==6
         result={"date":time.strftime("%Y-%m-%d"),"ruleset":"catalog-hp-v1","status":"passed","jniComparison":"passed","fixtureSha256":ai.file_hash(ROOT/"tests/fixtures/standard200.txt"),
-            "javaJarSha256":ai.file_hash(ROOT/"target/gekitotsu_lab-0.6.6.jar"),
+            "javaJarSha256":ai.file_hash(ROOT/"target/gekitotsu_lab-0.6.7.7.jar"),
             "bundledDllSha256":java["bundledDllSha256"],"observerSha256":ai.file_hash(ROOT/"rust/target/release/gkt-observe.exe"),
             "detailedObserverSha256":ai.file_hash(ROOT/"rust/target/release/gkt-detail.exe"),
             "candidateCodeSha256":ai.digest(candidate[0]["code"].encode()),"checkedMatches":len(pool),

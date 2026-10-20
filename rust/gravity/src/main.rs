@@ -6,9 +6,9 @@ use serde_json::{Value, json};
 use std::{fs, io::Write, path::Path};
 
 const ALPHABET: &[u8] = b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const POLICY: &str = "static-support-gravity-v2";
+const POLICY: &str = "static-support-gravity-v3";
 const EPS: f32 = 0.001;
-const MAX_SUPPORT_PUSH_UP: f32 = 35.0;
+const SUPPORT_PUSH_INITIAL_Y: i32 = 0;
 
 #[derive(Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -135,18 +135,19 @@ fn simulate(formation: &Formation, req: &Request) -> Result<Value, String> {
             if support_id>=0 {Some(json!({"entityId":support_id,"slot":ids.iter().position(|&v|v==support_id),
                 "kind":match game.raw(support_id) {Element::Base(_)=>"base",Element::Core(_)=>"core",_=>"wall"}}))} else {None}
         } else {None};
-        // Bound the entire observed trajectory, allowing jitter within this band.
         // Ball::land only pushes upward when resolving existing support geometry.
-        let within_up_limit=max_up[slot]<=MAX_SUPPORT_PUSH_UP+EPS;
+        // Only balls encoded at the editor's top boundary may be pushed above it.
+        let upward_allowed=max_up[slot]<=EPS
+            || (category=="ball" && u.y==SUPPORT_PUSH_INITIAL_Y);
         let no_fall=max_down[slot]<=EPS;
         let support_push = category=="ball" && dx.abs()<=EPS && max_up[slot]>EPS
-            && within_up_limit && no_fall;
+            && upward_allowed && no_fall;
         if support_push {accepted_pushes+=1;}
         // Target balls may deliberately start high to divert the opening ninja shot.
         let target_fall = u.type_id==42 && category=="ball" && dx.abs()<=EPS
-            && max_down[slot]>EPS && within_up_limit;
+            && max_down[slot]>EPS && upward_allowed;
         if target_fall {accepted_falls+=1;}
-        if dx.abs()>EPS || !within_up_limit || (!no_fall && u.type_id!=42) {rejected_movements+=1;}
+        if dx.abs()>EPS || !upward_allowed || (!no_fall && u.type_id!=42) {rejected_movements+=1;}
         rows.push(json!({"slot":slot,"typeId":u.type_id,"category":category,"r":u.r,
             "initial":{"x":u.x,"y":u.y},"final":{"x":x,"y":y},"delta":{"x":dx,"y":dy},
             "changed":moved,"lastChangeFrame":last_change[slot],"maxUp":max_up[slot],"maxDown":max_down[slot],
@@ -172,7 +173,7 @@ fn run() -> Result<(),Box<dyn std::error::Error>> {
     let results:Result<Vec<_>,_>=req.formations.iter().map(|f|simulate(f,&req)).collect();
     let out=json!({"schema":"gkt-gravity-v1","policy":POLICY,"coordinateSpace":"kit-workbench",
         "frozenSpecialEffects":true,"maxFrames":req.max_frames,"stableFrames":req.stable_frames,
-        "epsilon":EPS,"maxSupportPushUp":MAX_SUPPORT_PUSH_UP,"formations":results?});
+        "epsilon":EPS,"supportPushInitialY":SUPPORT_PUSH_INITIAL_Y,"formations":results?});
     let mut file=fs::OpenOptions::new().write(true).create_new(true).open(Path::new(&args[2]))?;
     serde_json::to_writer(&mut file,&out)?;file.flush()?;Ok(())
 }
@@ -220,10 +221,11 @@ mod tests {
         let a=simulate(&f,&Request{formations:vec![],max_frames:2,stable_frames:2}).unwrap();
         assert_eq!(a["converged"],false);assert_eq!(a["auditPassed"],false);assert!(a["appliedCode"].is_null());
     }
-    #[test] fn support_push_is_bounded_over_stacked_walls_and_core() {
-        for y in [0,100] {
+    #[test] fn support_push_only_allowed_from_y_zero() {
+        for y in [0,1,100] {
             let a=settle(&formation(&[(0,0,130,0),(25,200,y,0),(7,200,y,280)]));
-            assert_eq!(a["auditPassed"],true);assert_eq!(a["acceptedSupportPushUnits"],1);
+            assert_eq!(a["auditPassed"],y==0);
+            assert_eq!(a["acceptedSupportPushUnits"],if y==0 {1} else {0});
             assert_eq!(a["units"][2]["maxUp"],33.0);
         }
         // The second overlapping wall pushes the same ball another wall upward.
@@ -234,19 +236,23 @@ mod tests {
         assert!(a["units"][1]["maxUp"].as_f64().unwrap()>35.0);
         assert_eq!(a["auditPassed"],false);
     }
-    #[test] fn support_push_limit_includes_boundary() {
-        let a=settle(&formation(&[(0,0,130,0),(25,200,100,0),(25,200,98,0),(7,200,100,280)]));
-        assert_eq!(a["units"][3]["maxUp"],35.0);assert_eq!(a["auditPassed"],true);
-        let a=settle(&formation(&[(0,0,130,0),(25,200,100,0),(25,200,97,0),(7,200,100,280)]));
-        assert_eq!(a["units"][3]["maxUp"],36.0);assert_eq!(a["auditPassed"],false);
+    #[test] fn y_zero_core_support_push_passes_without_encoding_negative_y() {
+        for type_id in [7,42] {
+            let a=settle(&formation(&[(0,100,0,0),(type_id,136,0,0)]));
+            assert!(a["units"][1]["maxUp"].as_f64().unwrap()>EPS as f64);
+            assert_eq!(a["auditPassed"],true);
+            assert_eq!(a["units"][1]["acceptedSupportPush"],true);
+            assert_eq!(a["encodable"],false);assert!(a["appliedCode"].is_null());
+        }
     }
-    #[test] fn target_fall_exemption_does_not_require_convergence_but_bounds_push() {
+    #[test] fn target_fall_exemption_does_not_require_convergence_or_exempt_nonzero_push() {
         let f=formation(&[(0,0,0,0),(42,250,0,0)]);let a=settle(&f);
         assert_eq!(a["auditPassed"],true);assert_eq!(a["acceptedTargetFallUnits"],1);
         assert!(a["units"][1]["maxDown"].as_f64().unwrap()>300.0);
         let a=simulate(&f,&Request{formations:vec![],max_frames:2,stable_frames:2}).unwrap();
         assert_eq!(a["converged"],false);assert_eq!(a["auditPassed"],true);
-        let a=settle(&formation(&[(0,0,130,0),(25,200,100,0),(25,200,66,0),(42,200,100,0)]));
+        let a=settle(&formation(&[(0,0,130,0),(25,200,1,0),(42,200,1,0)]));
+        assert_eq!(a["units"][2]["maxUp"],33.0);
         assert_eq!(a["auditPassed"],false);
     }
     #[test] fn reject_malformed() {for code in ["000000","0Z0000","中国阵","0abcde/"] {assert!(decode(code).is_err());}}

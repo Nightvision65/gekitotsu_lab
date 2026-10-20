@@ -1,0 +1,10 @@
+{
+  "base": "experiments/REPLACE_RUN/inputs/base.json",
+  "rules": "experiments/REPLACE_RUN/inputs/rules.json",
+  "maxCandidates": 100,
+  "groups": [{
+    "name": "REPLACE_GROUP",
+    "hypothesis": "REPLACE_HYPOTHESIS",
+    "axes": [{"slots": ["REPLACE_SLOT"], "field": "r", "offsets": [-1, 1]}]
+  }]
+}

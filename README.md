@@ -1,6 +1,6 @@
 # gekitotsu_lab
 
-Lab **0.6.6**, using GekitotsuKit **1.9.1**. Their versions are maintained independently.
+Lab **0.6.7.7**, using GekitotsuKit **1.9.1**. Their versions are maintained independently.
 
 **From a lightweight toolkit to a large language model laboratory.**
 
@@ -89,10 +89,10 @@ python tools/ai/ai.py --timeout 30 formation --file docs/ai/examples/candidate.t
 The source GUI starts with:
 
 ```powershell
-java -jar target/gekitotsu_lab-0.6.6.jar
+java -jar target/gekitotsu_lab-0.6.7.7.jar
 ```
 
-For CLI/JSON usage, see the [tool runbook](docs/ai/03-tool-runbook.md) and [capability map](docs/ai/capabilities.md). The Windows portable release starts with `gekitotsu_lab.exe`; its GUI inputs are empty. See [release builds](docs/releasing.md) for source and portable packages.
+For CLI/JSON usage, see the [tool runbook](docs/ai/03-tool-runbook.md) and [capability map](docs/ai/capabilities.md). Research commands require the JAR with the `--ai` entry point; the packaged GUI JAR lacks that interface. [Experiment initialization](tools/ai/recipes/README.md) checks JNI and freezes the research JAR; pass that same copy explicitly with `evaluate_pool.py --jar`. The packaged `gekitotsu_lab.exe` remains the GUI entry point.
 
 ## Formation research workflow
 
@@ -108,9 +108,9 @@ flowchart LR
 
 Start by understanding the source formation and completing or reusing its full baselines. Then run controlled candidate batches, compare per-opponent gains and losses, and investigate selected changed matchups before choosing the next direction.
 
-The current pool roles are **200 opponents for training and screening**, **2000 for competitive validation**, and **10433 for the frozen finalist set**. Frame-limit outcomes count as draws; missing games and process errors remain failures. Pool identities, selection rules, and scoring are maintained in [benchmark policy](docs/ai/10-benchmark-usage.md).
+Normal searches use **200 opponents for iteration**, **2000 for competitive validation**, and **10433 for frozen finalists**. Tuning a selected base starts directly with full 2000 evaluations and finishes with full 10433. Frame-limit outcomes receive half credit; missing games and process errors remain failures. See [benchmark policy](docs/ai/10-benchmark-usage.md) for identities, selection, and scoring.
 
-The executable chain is `formation_workflow generate/accept` → `gravity.py evaluate` → `verify_pool.py`. See the [execution workflow](docs/ai/formation-tuning.md), [generator](docs/ai/generator.md), and [gravity checker](docs/ai/gravity-audit.md) for plans, commands, and evidence requirements.
+The chain is `formation_workflow generate` → `stable_dedup run` → task-specific batch acceptance → `evaluate_pool.py` → `verify_pool.py`. Gravity movement flags are diagnostic: all converged layouts are deduplicated together before checking the current search expectations. See the [workflow](docs/ai/formation-tuning.md), [generator](docs/ai/generator.md), [gravity reference](docs/ai/gravity-audit.md), and [reusable scripts and templates](tools/ai/recipes/README.md).
 
 ## Find the right knowledge
 
@@ -134,7 +134,7 @@ Use [analysis guidance](docs/ai/knowledge/analysis-usage.md) to interpret heatma
 
 ## Engine versions and evidence
 
-Fast evaluation uses the JNI DLL embedded in the selected JAR. Source observers use the pinned, locally derived Rust core. The current source rule `catalog-hp-v1` uses HP 100 for the blue accelerator and 75 for the elevator wall; the bundled JNI now uses the same catalog-hp-v1 HP values. The unpatched older DLL keeps its legacy rules. Rebuilding Java embeds the existing native resource and does not rebuild JNI. Check [HP rules](docs/ai/unit-hp-rules.md) and [engine compatibility](docs/ai/01-project-map.md#引擎核验与证据范围) before comparing or replaying results.
+Fast evaluation uses the JNI DLL embedded in the selected JAR; source observers use the pinned Rust core. Current source and distribution use `catalog-hp-v1`: blue accelerator HP 100, elevator wall HP 75. Maven packages the resource DLL and does not rebuild JNI. Freeze the actual binary hashes and check [HP rules](docs/ai/unit-hp-rules.md) and [engine evidence scope](docs/ai/01-project-map.md#引擎核验与证据范围) before comparing or replaying results.
 
 Formation codes, physical side, frame limit, seed policy, and engine/adapter hashes are part of evidence identity. Diagnostic results must match the corresponding evaluation before supporting an explanation. Static support checks cover their declared model and side; simulator results do not establish equivalence to the original Flash game.
 

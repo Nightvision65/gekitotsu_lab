@@ -1,6 +1,6 @@
 # gekitotsu_lab
 
-激突Lab **0.6.6**，内置并使用激突Kit **1.9.1**，两者独立维护版本。
+激突Lab **0.6.7.7**，内置并使用激突Kit **1.9.1**，两者独立维护版本。
 
 **从轻巧的工具箱，走向大模型实验室。**
 
@@ -89,10 +89,10 @@ python tools/ai/ai.py --timeout 30 formation --file docs/ai/examples/candidate.t
 从源码构建后启动GUI：
 
 ```powershell
-java -jar target/gekitotsu_lab-0.6.6.jar
+java -jar target/gekitotsu_lab-0.6.7.7.jar
 ```
 
-CLI/JSON调用见[工具手册](docs/ai/03-tool-runbook.md)与[能力地图](docs/ai/capabilities.md)。在本地发行包中也可使用`gekitotsu_lab.exe`；打包程序与源码构建各自保留版本身份。
+CLI/JSON调用见[工具手册](docs/ai/03-tool-runbook.md)与[能力地图](docs/ai/capabilities.md)。研究命令需要含`--ai`入口的研究JAR，GUI发行包不含该接口。[建档工具](tools/ai/recipes/README.md)核验JNI并冻结研究JAR，后续`evaluate_pool.py --jar`显式使用同一副本；`gekitotsu_lab.exe`用于GUI。
 
 ## 怎样用它造阵
 
@@ -108,9 +108,9 @@ flowchart LR
 
 先读懂原阵，完成或核验复用原阵完整基线；随后以有对照的小批候选迭代。每批研究具体对手的收益和退步，对有明确问题的变化局补少量诊断，再选择下一父阵与参数方向。
 
-当前阵池分工是：**标准200用于训练与筛选，验证2000用于竞争验证，完整10433用于冻结决赛名单后的决胜**。帧上限未决计平局，缺局与进程失败单列为失败。阵池身份、选拔和评分规则统一见[阵集政策](docs/ai/10-benchmark-usage.md)。
+常规造阵用**完整200迭代、2000竞争验证、10433冻结决赛圈后决胜**；已选基底微调直接从完整2000迭代，以完整10433收尾。帧上限未决计半胜，缺局与进程失败单列。阵池身份、选拔和评分见[阵集政策](docs/ai/10-benchmark-usage.md)。
 
-实际执行链为`formation_workflow generate/accept` → `gravity.py evaluate` → `verify_pool.py`。完整步骤见[研究流程](docs/ai/formation-tuning.md)，计划格式见[生成器](docs/ai/generator.md)，静态模型和侧位范围见[重力审核](docs/ai/gravity-audit.md)。
+执行链为`formation_workflow generate` → `stable_dedup run` → 本轮批量预期验收 → `evaluate_pool.py` → `verify_pool.py`。原码位移是诊断标记，所有收敛布局统一去重后再验收本轮预期。步骤见[研究流程](docs/ai/formation-tuning.md)，格式见[生成器](docs/ai/generator.md)，模型见[重力审核](docs/ai/gravity-audit.md)，公共入口见[复用脚本与模板](tools/ai/recipes/README.md)。
 
 ## 查什么知识
 
@@ -134,7 +134,7 @@ flowchart LR
 
 ## 引擎版本与证据
 
-快速评测使用所选JAR内置的JNI DLL，源码观察器使用固定来源的派生Rust核心。当前源码规则`catalog-hp-v1`将蓝加速器HP设为100、电梯壁设为75；当前内置JNI已同步该规则，未经补丁的旧DLL仍保留原规则。重新构建Java会嵌入现有原生资源，不会从源码重建JNI。跨后端比较或重放前，先核对[HP版本](docs/ai/unit-hp-rules.md)和[引擎适用范围](docs/ai/01-project-map.md#引擎核验与证据范围)。
+快速评测用所选JAR内置JNI，源码观察器用冻结Rust核心。当前源码与发行包均采用`catalog-hp-v1`：蓝加速器HP100、电梯壁75。Maven打包资源DLL，不重建JNI。比较或重放前冻结实际二进制哈希，核对[HP规则](docs/ai/unit-hp-rules.md)和[引擎证据范围](docs/ai/01-project-map.md#引擎核验与证据范围)。
 
 阵码、物理侧位、帧上限、seed政策及引擎/适配器哈希共同构成证据身份。诊断结果与对应评测一致后，才用于解释该对局；静态审核仅证明其声明模型和侧位，模拟器结果也不直接等同原Flash表现。
 

@@ -6,6 +6,8 @@
 
 执行前阅读[基础机制](08-formation-fundamentals.md)、[阵码契约](02-formation-format.md)及本阵单位百科。每份计划显式填写`base`、`rules`、`maxCandidates`、`groups`。`base`和字符串形式的`rules`路径相对工作区根目录；`--plan / --out`按调用时路径解析。JSON、阵码文件均为UTF-8，多阵必须用`/`分隔。
 
+坐标与结构计划骨架集中在[复用目录](../../tools/ai/recipes/README.md)的`templates/`，搜索预期和分群亦有模板；占位符与示意阈值须按本轮任务替换，不能直接运行或套用槽位。已有生成、规则、缓存和核验能力继续复用，不将旧实验驱动复制成新入口。
+
 `base`支持候选JSON数组、含`candidates`的对象及Kit阵码文件，必须包含`rules.parentCode`。每个group默认使用base中的所有父阵，也可用`parents`显式列出父阵对象；所有父阵均须满足本轮冻结规则。规则中的固定字段与配对以`rules.parentCode`为参照，候选变化与偏移则以本次具体父阵为参照。
 
 ```json
@@ -58,7 +60,7 @@
 ]}
 ```
 
-group可声明`sample`和整数`seed`，按混合进制组合索引无放回抽样，不创建全部笛卡尔积。省略seed时固定为0。`deterministic-index-v1`与临时薄层的“先全排列再shuffle”不保证选中相同子集；已冻结的旧候选直接复用，不重生成替换。未抽样组合及整份计划实际尝试数量各最多1000000；抽样母空间不超过平台整数范围。`maxCandidates`为唯一合法新码的安全限额，范围1–20000；超限整次报错，不发布截断名单。
+group可声明`sample`和整数`seed`，按`deterministic-index-v1`混合进制组合索引无放回抽样，不创建全部笛卡尔积；省略seed固定为0。冻结名单直接复用，不重生成替换。未抽样组合及整份计划实际尝试数量各最多1000000；抽样母空间不超过平台整数范围。`maxCandidates`为唯一合法新码的安全限额，范围1–20000；超限整次报错，不发布截断名单。
 
 ## 生成、稳定化、验收与对战
 
@@ -70,7 +72,9 @@ PowerShell入口自动激活conda opencode。直接调用Python时先按[环境�
 
 输出`candidates.json / formations.txt`是**尚未重力审核的内部草稿**。同时保存冻结plan/rules、逐项rejected、保序aliases、父阵与精确改动、预算/加速、时序提示、输入与工具哈希。没有合法新候选时退出码3，保存拒绝证据，不发布空成功名单。所有输出禁止覆盖。
 
-布局本已稳定，可直接使用下面的`gravity.py evaluate`，由其先审后评。需要落稳转换时，先apply，再accept：
+下一步使用[stable_dedup](gravity-audit.md)将全部通过和未通过位移检查的来源合并为稳定几何类，再由本轮检查程序成批验收预期与规则。预期随任务定义，模板见[复用目录](../../tools/ai/recipes/templates/search-expectations.md)；生成器的rules schema不承载任意战术条件。冻结验收后的代表纯码才进入[评测与verify](formation-tuning.md#评测与逐池核验)，进度读progress/summary。
+
+需要落稳转换时，可使用现有命令：
 
 ```powershell
 conda activate opencode
@@ -78,15 +82,8 @@ python tools/ai/gravity.py apply --input experiments/next/generated/candidates.j
 .\tools\ai\formation_workflow.ps1 accept --source experiments/next/generated/candidates.json --applied experiments/next/applied --rules experiments/next/generated/rules.json --out experiments/next/stable-candidates.json
 ```
 
-accept核验apply证据的输入、哈希与工具身份，再以相同rules检查稳定态预算、禁限、固定字段、配对和dropControl。`--exclude 已测候选.json`可重复声明，按纯码保留首次来源。稳定化后不复制原成绩、W/L/D/U/E或outcomes；重新计算新码哈希与改动。输出旁保存拒绝、源阵映射和audit；去支撑反事实另存`.drop-control/`的输入、指纹与原始结果。即使两个源阵归并为同一稳定态，也保留全部来源映射。
-
-```powershell
-python tools/ai/gravity.py evaluate --candidates experiments/next/stable-candidates.json --audit-out experiments/next/preflight --evaluation-timeout 1800 -- --opponents benchmarks/standard200/opponents.txt --side 1 --store experiments/next/cache/store.sqlite --out experiments/next/training --threads 32 --timeout 300 --time-limit 1700
-python tools/ai/verify_pool.py --run experiments/next/training --candidates experiments/next/stable-candidates.json --opponents benchmarks/standard200/opponents.txt
-```
-
-评测进度读取`training/progress.json`，结果核验以`verify_pool.py`为准。2000与10433使用各自冻结池和独立输出目录，复用同一契约的缓存；不更改对手阵码或权重。来源原码按[原阵研究](formation-tuning.md#11-开搜前先充分研究原阵)完成或复用三池诊断，稳定态为新候选重新审核与评测；不继承旧成绩，也不例行给稳定态重复建立三池基线。
+accept核验apply证据的输入、哈希与工具身份，再以相同rules检查稳定态预算、禁限、固定字段、配对和dropControl。`--exclude 已测候选.json`可重复声明，当前按纯码保留首次来源，不能替代跨通过/未通过两组的稳定几何去重。稳定化后不复制原成绩、W/L/D/U/E或outcomes；重新计算新码哈希与改动。输出旁保存拒绝、源阵映射和audit；去支撑反事实另存`.drop-control/`的输入、指纹与原始结果。即使两个源阵归并为同一稳定态，也保留全部来源映射。
 
 ## 约束验证范围
 
-生成器检查见[测试入口](../../tests/test_formation_generator.py)：规则执行、模板偏移、保序去重、大组合空间抽样、纯码回编码、预算/加速独立核算，以及真实重力apply→accept→去支撑反事实。验收还须保证旧成绩不转移、别名不丢失、固定字段落稳后仍生效，未过审核不启动对局。工具验证与候选强度评测分别记录；具体通过范围须匹配实际工具/测试哈希，不能把历史成功当作当前构建自动通过。
+生成器检查见[测试入口](../../tests/test_formation_generator.py)：规则执行、模板偏移、保序去重、大组合空间抽样、回编码、预算/加速独立核算及真实apply→accept→去支撑反事实。统一去重另有[独立测试](../../tests/test_stable_dedup.py)。本轮预期检查须保存自己的输入、程序与结果；工具检查不证明候选强度。

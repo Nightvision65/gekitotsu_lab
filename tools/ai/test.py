@@ -35,11 +35,11 @@ try:
     run([sys.executable,"tools/ai/gravity.py","build","--timeout",str(timeout)],"gravity-build")
     run([sys.executable,"-m","unittest","discover","-s","tests","-p","test_*.py","-v"],"store-and-contract")
     run([sys.executable,"tests/verify_native_hp.py","--out",str(folder/"release-hp.json")],"release-hp")
-    run([sys.executable,"tests/verify_native_hp.py","--jar","target/gekitotsu_lab-0.6.6.jar","--out",str(folder/"research-hp.json")],"research-hp")
-    run(["javac","-encoding","UTF-8","-cp","target/gekitotsu_lab-0.6.6.jar","-d","target/test-tools",
+    run([sys.executable,"tests/verify_native_hp.py","--jar","target/gekitotsu_lab-0.6.7.7.jar","--out",str(folder/"research-hp.json")],"research-hp")
+    run(["javac","-encoding","UTF-8","-cp","target/gekitotsu_lab-0.6.7.7.jar","-d","target/test-tools",
          "tests/UnitHpRulesCheck.java","tests/UpdateReleaseCheck.java"],"java-release-checks-compile")
     for entry in ("UnitHpRulesCheck", "org.example.UpdateReleaseCheck"):
-        run(["java","-cp","target/test-tools;target/gekitotsu_lab-0.6.6.jar",entry],entry)
+        run(["java","-cp","target/test-tools;target/gekitotsu_lab-0.6.7.7.jar",entry],entry)
     run([os.environ.get("GKT_CARGO","cargo"),"test","--release","--locked","--offline","--manifest-path","rust/Cargo.toml","--","--nocapture"],"rust-public-tests")
     run([os.environ.get("GKT_CARGO","cargo"),"test","--locked","--offline","--manifest-path","rust/gravity/Cargo.toml"],"rust-gravity-tests")
     run([sys.executable,"tests/verify_integration.py","--out",str(folder/"engine-200.json")],"engine-200")

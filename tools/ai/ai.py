@@ -2,6 +2,7 @@
 """只读战斗观察、不可覆盖证据与有界查询。仅依赖Python标准库。"""
 from __future__ import annotations
 import argparse
+from contextlib import closing
 import hashlib
 import json
 import os
@@ -11,16 +12,18 @@ import sqlite3
 import subprocess
 import sys
 import tempfile
+import zipfile
 from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parents[2]
 
 def default_jar():
     """Prefer a source build; portable releases keep the same JAR under app/."""
-    name = "gekitotsu_lab-0.6.6.jar"
+    name = "gekitotsu_lab-0.6.7.7.jar"
     built = ROOT / "target" / name
     return built if built.is_file() else ROOT / "app" / name
 
+DEFAULT_JAR = default_jar()
 POLICY = "timeout-as-draw-v1"
 ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 SCHEMA = "gkt-store-v1"
@@ -169,27 +172,57 @@ def verified(db, artifact):
     return row
 
 
-def compute(db, store, request, args, backend, expected_result=None):
+def java_engine(jar):
+    """核验研究入口并读取同一JAR内的JNI，不执行GUI或对战。"""
+    binary = Path(jar).resolve()
+    if not binary.is_file():
+        raise ValueError(f"缺少研究JAR：{binary}；先运行tools/ai/build.ps1")
+    before = file_hash(binary)
+    try:
+        with zipfile.ZipFile(binary) as archive:
+            manifest = archive.read("META-INF/MANIFEST.MF").decode("utf-8").replace("\r\n", "\n").replace("\n ", "")
+            attributes = dict(line.split(": ", 1) for line in manifest.splitlines() if ": " in line)
+            main_class = archive.read(attributes["Main-Class"].replace(".", "/")+".class")
+            archive.getinfo("org/example/ai/AiApi.class")
+            if b"\x01\x00\x04--ai" not in main_class or b"org/example/ai/AiApi" not in main_class:
+                raise ValueError("主类没有研究--ai入口")
+            dll = archive.read("native/gkt_jni.dll")
+    except (KeyError, ValueError, zipfile.BadZipFile, UnicodeError) as error:
+        raise ValueError(f"JAR不支持研究--ai接口或缺少JNI：{binary}；请使用构建后的{DEFAULT_JAR.name}") from error
+    if file_hash(binary)!=before:
+        raise ValueError("核验期间JAR发生改变，拒绝使用不稳定构建")
+    fingerprint = {"backend": "java", "binarySha256": before,
+                   "adapterSha256": file_hash(__file__), "policy": POLICY,
+                   "dllSha256": digest(dll)}
+    identity_file = binary.parent/"identity.json"
+    if identity_file.is_file():
+        frozen = read_json(identity_file)
+        if frozen.get("schema")=="gkt-experiment-inputs-v1":
+            expected = frozen.get("engine", {}).get("fingerprint", {})
+            if any(expected.get(key)!=fingerprint[key] for key in ("binarySha256", "dllSha256")):
+                raise ValueError("JAR/DLL与建档冻结身份不同，拒绝运行；请另建实验目录冻结所需构建")
+    return binary, dll, fingerprint
+
+
+def compute(db, store, request, args, backend, expected_result=None, expected_fingerprint=None):
+    dll = None
     if backend in ("observer","detailed"):
         name="gkt-detail" if backend=="detailed" else "gkt-observe"
         configured=args.detailed_observer if backend=="detailed" else args.observer
         binary = Path(configured or ROOT / "rust/target/release" / (name+".exe" if os.name == "nt" else name)).resolve()
     else:
-        binary = Path(args.jar or default_jar()).resolve()
+        binary, dll, fingerprint = java_engine(args.jar or default_jar())
     if not binary.is_file():
         raise ValueError(f"缺少构建产物：{binary}；先运行tools/ai/build.ps1")
-    fingerprint = {"backend": backend, "binarySha256": file_hash(binary),
-                   "adapterSha256": file_hash(__file__), "policy": POLICY}
+    if backend in ("observer", "detailed"):
+        fingerprint = {"backend": backend, "binarySha256": file_hash(binary),
+                       "adapterSha256": file_hash(__file__), "policy": POLICY}
     if backend=="detailed":
         base=Path(args.observer or ROOT/"rust/target/release"/("gkt-observe.exe" if os.name=="nt" else "gkt-observe"))
         fingerprint["baseObserverSha256"]=file_hash(base)
         fingerprint["coreHookGeneratorSha256"]=file_hash(ROOT/"tools/ai/prepare_core.py")
-    dll = None
-    if backend == "java":
-        import zipfile
-        with zipfile.ZipFile(binary) as jar:
-            dll = jar.read("native/gkt_jni.dll")
-        fingerprint["dllSha256"] = digest(dll)
+    if expected_fingerprint is not None and fingerprint!=expected_fingerprint:
+        raise ValueError("运行引擎与冻结指纹不同，拒绝启动或复用对局")
     identity = dumps({"request": request, "fingerprint": fingerprint})
     artifact = digest(identity.encode())
     old = db.execute("SELECT id FROM artifacts WHERE id=?", (artifact,)).fetchone()
@@ -245,6 +278,25 @@ def compute(db, store, request, args, backend, expected_result=None):
         raw.unlink()
         raise
     return {"artifact": artifact, "cached": False, "summary": summary}
+
+
+def probe_java_engine(jar, java=None, timeout=30):
+    """用真实--ai请求核验JNI，临时存证不留下评测现场，不运行对战。"""
+    if not 0 < timeout < float("inf"):
+        raise ValueError("引擎探测超时须为有限正数")
+    binary, _, expected = java_engine(jar)
+    args = argparse.Namespace(jar=str(binary), java=java, timeout=timeout)
+    with tempfile.TemporaryDirectory(prefix="gkt-engine-probe-") as folder:
+        store = Path(folder)/"store.sqlite"
+        with closing(connect(store)) as db:
+            result = compute(db, store, {"action": "probe"}, args, "java", expected_fingerprint=expected)
+            row = verified(db, result["artifact"])
+            data = read_json(row["raw_path"])
+    if data.get("schemaVersion")!="gkt-ai-analysis-v1" or data.get("action")!="probe":
+        raise ValueError("JAR未返回研究--ai探测响应")
+    if data.get("rustAvailable") is not True:
+        raise ValueError("JAR的JNI不可用："+str(data.get("rustReason", "未知原因")))
+    return {"fingerprint": expected, "result": data}
 
 
 DEFAULT_FIELDS = {

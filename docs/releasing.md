@@ -4,7 +4,7 @@
 
 本地持续维护材料按用途放在Git忽略的`local-maintenance/`：修复与版本对照工具、维护记录、具体案例、宣传素材各用独立子目录，可以持续更新。公开文档只描述当前机制、操作与兼容边界，不依赖该目录中的文件；当前功能需要的源码和可复用测试仍随仓库分发。
 
-Lab版本为0.6.6，维护在pom.xml与Version.LAB_VERSION；内置Kit版本为1.9.1，维护在Version.VERSION。界面、更新检查、发布标签与附件使用Lab版本，Kit接口另报kitVersion，不随Lab发版改动Kit版本。
+Lab版本为0.6.7.7，维护在pom.xml与Version.LAB_VERSION；内置Kit版本为1.9.1，维护在Version.VERSION。界面、更新检查、发布标签与附件使用Lab版本，Kit接口另报kitVersion，不随Lab发版改动Kit版本。
 
 ## 本地验收与打包
 

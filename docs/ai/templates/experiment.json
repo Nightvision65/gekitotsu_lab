@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "runId": "REPLACE_ME",
-  "objective": "maximize_standard200_win_rate",
+  "objective": "REPLACE_WITH_TASK_OBJECTIVE_AND_PHASE",
   "rules": {
     "rulesetId": "provisional-normal-1500",
     "confirmedByUser": false,
@@ -33,51 +33,51 @@
   },
   "evaluation": {
     "engine": "kit-bundled-rust",
+    "jarFile": null,
     "jarSha256": null,
     "dllSha256": null,
+    "engineProbeFile": null,
     "maxFrames": 65536,
-    "sides": [
-      "1P",
-      "2P"
-    ],
-    "seedPolicy": "engine-default",
+    "sides": ["1P"],
+    "seedPolicy": "native-default",
     "explicitSeeds": [],
-    "primaryMetric": "kit_win_rate_vs_standard200_as_1P",
+    "primaryMetric": "REPLACE_WITH_TASK_ITERATION_POOL_WIN_RATE",
     "primarySide": "1P",
-    "auxiliarySide": "2P",
+    "auxiliarySide": null,
     "drawScore": 0.5,
     "timeoutPolicy": "timeout-as-draw-v1",
     "errorPolicy": "isolate_and_retry",
-    "opponentWeights": "equal_for_all_200_frozen_entries",
-    "minimumGain": 0.0025,
+    "opponentWeights": "equal_frozen_ordered_entries",
+    "minimumGain": null,
     "maxCriticalCategoryRegression": null,
     "mustPassOpponentIds": []
   },
   "inputs": {
-    "baselineFile": "inputs/baseline.txt",
-    "benchmarkFile": "benchmarks/standard200/opponents.txt",
-    "benchmarkManifest": "benchmarks/standard200/manifest.json",
-    "benchmarkSha256": "0cd9c75baa7d15157e13102f30a92965df021d4809e34e756cadffe6ed998158",
-    "screeningSubsetFile": null,
+    "baselineFile": "inputs/base.json",
+    "benchmarkFile": null,
+    "benchmarkManifest": null,
+    "benchmarkSha256": null,
+    "diagnosticSubsetFile": null,
     "extraValidationFile": null,
     "extraHoldoutFile": null,
-    "familySplitSeed": 20261012,
+    "familySplitSeed": null,
     "inputHashes": {}
   },
   "search": {
-    "randomSeed": 20261012,
+    "randomSeed": 0,
     "initialCandidateLimit": null,
     "totalBattleBudget": null,
     "perCommandTimeoutSeconds": 180,
     "threads": 4,
-    "stopAfterNoGainRounds": 3,
+    "stopAfterNoGainRounds": null,
+    "stopPolicy": "按用户停止指示、冻结预算或明确阶段目标；单轮或连续无收益不证明全局收敛",
     "holdoutConsumed": false,
     "stageTargets": {
       "approximate": true,
       "standard200Candidates": 4000,
-      "validation2000Candidates": 100,
-      "final10433Candidates": 20,
-      "adjustmentPolicy": "按实际搜索空间、竞争情况和计算量上下调整；说明原阵是否计入总数"
+      "validation2000Candidates": 200,
+      "final10433Candidates": 40,
+      "adjustmentPolicy": "此为常规造阵弹性参考；已选基底微调默认2000起步、冻结名单后10433收尾，按本轮范围填写并说明原阵是否计入"
     }
   }
 }

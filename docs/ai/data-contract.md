@@ -45,7 +45,7 @@
 
 `cohort.landingSurfaces`按ground/own_platform/enemy_platform/未落地终止原因计次数；`landingPositionStats`对已落地轨迹按surface分别计算worldX/Y、enemyCoreRelativeX/Y的min/mean/max。均值不能代替多峰分布，必要时分页查询flights原始位置；未落地轨迹不计入落点均值。
 
-`netDamageObserved/netHealingObserved`累加帧末净差分，不能认作逐击精确输出或伤害归因。`initialHp`是构造数据，生成实体的initialHp是首次可观测值。目录中的catalogHp与工作台对象HP分别标注；例如原DLL蓝加速器目录100、战斗150；catalog-hp-v1源码已修正为100，电梯壁修正为75，详见[HP规则版本](unit-hp-rules.md)。
+`netDamageObserved/netHealingObserved`累加帧末净差分，不能认作逐击精确输出或伤害归因。`initialHp`是构造数据，生成实体的initialHp是首次可观测值。catalogHp、工作台对象HP与战斗构造分别标注；当前catalog-hp-v1蓝加速器100、电梯壁75，构建核验见[HP规则](unit-hp-rules.md)。
 
 默认快照间隔120帧，总是包含frame0与终态。快照提供核心HP/位置、车板位置/速度/加速度、存活Ball/Wall数量、空中单位数和activeAttackObjects。后者是传感器内攻击对象存量，不是发射次数、准确命中次数或真实弹丸净伤害。
 
@@ -59,7 +59,7 @@
 
 战场原GUI metas非核心从index0起、核心放在最后；AI slots显式映射核心slot0/非核心index+1，同时保留reportIndex。damageTaken是受创总量，deathCount是死亡总量，未分组；时间线按group=0赢/1输/2其他分组，提供sampleCount和均值，晚期长局样本不等于整个阵池。
 
-### 原GUI聚合数组
+### GUI聚合数组
 
 `rawGuiReport.slotDamage/slotDeaths`表示己方槽位受创/死亡，不是攻击者输出排名。metas非核心k对应阵码slot k+1，核心位于末尾n，不能把数组0当核心；类型、位置、角度、core标志不能唯一对应时保留报告索引，不猜测映射。`S_CORE_DAMAGE_*`与普通单位`S_DAMAGE_*`分开取，标量每局10项，对照`BattlefieldAnalyzer.S_*`常量。
 

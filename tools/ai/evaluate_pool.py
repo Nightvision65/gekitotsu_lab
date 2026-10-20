@@ -6,18 +6,12 @@ import json
 import os
 from pathlib import Path
 import time
-import zipfile
 
 import ai
 
 
 def fingerprint(args):
-    jar = Path(args.jar or ai.default_jar())
-    with zipfile.ZipFile(jar) as archive:
-        dll = ai.digest(archive.read("native/gkt_jni.dll"))
-    return {"backend": "java", "binarySha256": ai.file_hash(jar),
-            "adapterSha256": ai.file_hash(ai.__file__), "policy": ai.POLICY,
-            "dllSha256": dll}
+    return ai.java_engine(args.jar)[2]
 
 
 def physical_matrices(data):
@@ -88,7 +82,6 @@ def run(args):
     if os.environ.get("CONDA_DEFAULT_ENV") != "opencode":
         raise ValueError("请先conda activate opencode")
     out = Path(args.out).resolve()
-    out.mkdir(parents=True, exist_ok=True)
     source = Path(args.candidates)
     candidates = ai.read_json(source) if source.suffix == ".json" else ai.formations(source)
     if isinstance(candidates, dict):
@@ -107,6 +100,7 @@ def run(args):
     frozen = out / "manifest.json"
     if frozen.exists() and ai.read_json(frozen) != manifest:
         raise ValueError("输入或运行器指纹改变，必须使用新输出目录")
+    out.mkdir(parents=True, exist_ok=True)
     if not frozen.exists():
         frozen.write_text(ai.dumps(manifest), encoding="utf-8")
     cache = {}
@@ -142,7 +136,7 @@ def run(args):
                    "p2": [{"name": c.get("name", ""), "code": c["code"]} for c in p2],
                    "bothSides": False, "maxFrames": args.max_frames, "threads": args.threads, "maxJobs": 12800}
             try:
-                result = ai.compute(db, store, req, args, "java")
+                result = ai.compute(db, store, req, args, "java", expected_fingerprint=fp)
                 row = ai.verified(db, result["artifact"])
                 ingest(ai.read_json(row["raw_path"]), result["artifact"], row["raw_sha256"],
                        args.side, own_codes, opp_codes, cache)
@@ -186,7 +180,7 @@ def main():
     p.add_argument("--max-frames", type=int, default=65536)
     p.add_argument("--timeout", type=float, default=300)
     p.add_argument("--time-limit", type=float, default=3600)
-    p.add_argument("--jar")
+    p.add_argument("--jar", required=True, help="显式指定本轮冻结且支持--ai的研究JAR")
     p.add_argument("--java")
     args = p.parse_args()
     if args.max_frames <= 0 or args.timeout <= 0 or args.time_limit <= 0 or args.threads <= 0:

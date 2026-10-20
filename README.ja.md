@@ -1,6 +1,6 @@
 # gekitotsu_lab
 
-Lab **0.6.6**、内蔵GekitotsuKit **1.9.1**。バージョンは個別に管理します。
+Lab **0.6.7.7**、内蔵GekitotsuKit **1.9.1**。バージョンは個別に管理します。
 
 **軽量なツールキットから、大規模言語モデルの実験室へ。**
 
@@ -89,10 +89,10 @@ python tools/ai/ai.py --timeout 30 formation --file docs/ai/examples/candidate.t
 ソースから構築したGUIの起動：
 
 ```powershell
-java -jar target/gekitotsu_lab-0.6.6.jar
+java -jar target/gekitotsu_lab-0.6.7.7.jar
 ```
 
-CLI/JSONの使い方は[ツール手順](docs/ai/03-tool-runbook.md)と[機能一覧](docs/ai/capabilities.md)を参照してください。ローカル配布版の激突Kit.exeも利用できますが、配布バイナリとソースビルドは別のバージョンとして扱います。
+CLI/JSONは[ツール手順](docs/ai/03-tool-runbook.md)と[機能一覧](docs/ai/capabilities.md)を参照してください。研究コマンドには`--ai`を持つ研究用JARが必要で、GUI配布JARにはこの入口がありません。[実験初期化](tools/ai/recipes/README.md)でJNIを検証してJARを固定し、以後の`evaluate_pool.py --jar`に同じコピーを指定します。激突Kit.exeはGUI用です。
 
 ## 編成研究の流れ
 
@@ -108,9 +108,9 @@ flowchart LR
 
 元編成を理解し、完全な基準評価を実行または検証して再利用します。その後、対照付きの小バッチで探索し、対戦相手ごとの改善・悪化と必要な診断を調べて次の親編成・パラメータを選びます。
 
-対戦集は**200編成が学習・選別、2000編成が競合候補の検証、10433編成が固定した決勝候補の比較**に対応します。フレーム上限は引き分けとして採点し、欠落やプロセスエラーは別に失敗として扱います。対戦集の版・選抜・採点は[評価方針](docs/ai/10-benchmark-usage.md)で定義します。
+通常の探索は**200編成で反復、2000編成で競合検証、固定した決勝候補を10433編成で比較**します。選定済み編成の微調整は完全な2000評価から始め、完全な10433評価で締めくくります。フレーム上限は半勝、欠落やプロセスエラーは別扱いです。詳細は[評価方針](docs/ai/10-benchmark-usage.md)を参照してください。
 
-実行経路は`formation_workflow generate/accept` → `gravity.py evaluate` → `verify_pool.py`です。[研究手順](docs/ai/formation-tuning.md)、[生成器](docs/ai/generator.md)、[重力検査](docs/ai/gravity-audit.md)に計画・コマンド・適用範囲をまとめています。
+実行経路は`formation_workflow generate` → `stable_dedup run` → 今回の期待条件の一括検証 → `evaluate_pool.py` → `verify_pool.py`です。元コードの移動判定は診断情報であり、収束した配置をまとめて重複排除してから期待条件を検証します。[研究手順](docs/ai/formation-tuning.md)、[生成器](docs/ai/generator.md)、[重力検査](docs/ai/gravity-audit.md)、[共通スクリプトとテンプレート](tools/ai/recipes/README.md)を参照してください。
 
 ## 知識の調べ方
 
@@ -134,7 +134,7 @@ flowchart LR
 
 ## エンジンの版と証拠
 
-高速評価は選択したJAR内のJNI DLLを使用し、ソース観測器は固定Rustコアの派生版を使用します。現行ソースのcatalog-hp-v1は青加速器HP100、電梯壁HP75ですが、現行の内蔵JNIも同じルールに対応します。未修正の旧DLLは以前のルールを保持し、Javaの再ビルドは既存のネイティブリソースを組み込みますがJNIを再構築しません。比較・再生前に[HPルール](docs/ai/unit-hp-rules.md)と[エンジン適用範囲](docs/ai/01-project-map.md#引擎核验与证据范围)を確認してください。
+高速評価は選択したJAR内のJNI、観測器は固定Rustコアを使用します。現行ソースと配布版はcatalog-hp-v1（青加速器HP100、電梯壁HP75）です。MavenはリソースDLLを梱包し、JNIを再ビルドしません。比較・再生前に実際のバイナリハッシュを固定し、[HPルール](docs/ai/unit-hp-rules.md)と[証拠の範囲](docs/ai/01-project-map.md#引擎核验与证据范围)を確認してください。
 
 編成コード、物理側、フレーム上限、seed方針、エンジン・アダプタのハッシュが証拠の識別条件です。診断は対応する評価と結果が一致してから説明に使用します。静的検査が保証するのは宣言されたモデルと側であり、シミュレータ結果は元Flash版との同等性を保証しません。
 

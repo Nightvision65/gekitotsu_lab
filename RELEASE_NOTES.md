@@ -1,12 +1,31 @@
-# gekitotsu_lab 0.6.6
+# 激突Lab 0.6.7.7
 
-Lab version: 0.6.6. Embedded GekitotsuKit version: 1.9.1.
+本次是从 **0.6.5 到 0.6.7.7** 的累计大更新，包含已撤回0.6.6的修复及其后的公共研究工具改进。Lab版本为0.6.7.7，内置激突Kit仍为1.9.1，两者独立维护。
 
-- Fix gravity auditing with static-support-gravity-v2: permit normal support pushes up to 35 px, intentional target-ball (ID42) falls and movement within tolerance. Convergence remains required when publishing an applied stable code.
-- Align bundled JNI and reference Kit HP with catalog-hp-v1: blue accelerator 100, elevator wall 75. Use a distinct native engine identity to separate legacy caches.
-- Enforce strict 200-match JNI/plain/basic/detailed result comparisons and ship reusable Java/JNI HP checks.
-- Standardize reported win rates: draws and frame-limit unresolved outcomes count as half a win, with a fixed denominator; errors remain failures.
+## 稳定态与候选验收
 
-Source and Windows x64 portable packages contain public code, documentation and fixed test inputs. Portable GUI inputs start empty. Private research, formations, results, caches, local configuration and maintenance materials are excluded.
+- 工作链统一为生成 → `stable_dedup`稳定态统一去重 → 本轮预期/规则批量验收 → `evaluate_pool` → `verify_pool`。旧的`gravity.py evaluate`入口由独立评测器替代。
+- 位移标记作为诊断：全部收敛来源统一分组，保留源阵、稳定类、实际代表和别名；位移未通过的来源可以在稳定态符合本轮预期时保留。未收敛单列，不能将末帧当作稳定态。
+- 新稳定码要求可编码、幂等与规则重验；负坐标不夹紧，必要时保留合法来源码。源成绩不自动转移到稳定态新码，几何相同不冒充战斗等价。
+- 补充纸壁碰撞上壁条件、支撑关系及限定侧位的核验边界。
 
-Missing upstream telemetry/frames goldens remain explicitly skipped; simulator checks do not establish original Flash equivalence.
+## 实验工具与证据可靠性
+
+- 新增公共recipes：实验建档、输入与研究引擎冻结、命令/PID/日志/真实超时监督、文件与SQLite/raw引用快照核验。
+- 新增离线排名、对手分群及真实父阵逐对手增失分报告，支持多个参照run、精确改动、改善/退步索引及反例研究；不为离线报告重复模拟。
+- 新增脚本与函数静态重复盘点，以及坐标/结构计划、分群和预期验收模板，减少重复驱动。
+- 建档先验证研究JAR的`--ai`入口与JNI可用性，冻结JAR/DLL哈希；评测必须显式指定本轮`--jar`，每批核对身份。固定GUI参考Kit JAR不再误用为研究接口。
+
+## 规则一致性与完整验收
+
+- 分发JNI、Java及Rust观察器统一采用`catalog-hp-v1`：蓝加速器HP/maxHp为100，电梯壁为75；旧规则缓存须分开。
+- 严格比较完整200局JNI/plain/basic/detailed的胜负、终局HP和帧数，并提供Java/JNI实际HP与详细HP账本核验。
+- 报告统一称胜率，D与帧上限未决U各计半胜，固定完整N；缺局、E、程序失败或进程超时不计作平局。
+
+## 研究流程与文档
+
+- 原阵先完成200/2000/10433三池核验、重点分群、代表胜败及获胜/失败路径研究，再生成搜索候选。
+- 常规搜索按200训练、2000竞争验证、冻结名单后10433决赛；已选基底微调直接完整2000迭代，以完整10433收尾，并从完整结果另聚合10235。
+- 重新整理文档职责和入口，合并重复规则；完善BASELINE、STATE、候选研究、停止状态、归档及公开知识提交约定。
+
+提供源码ZIP、Windows x64便携ZIP及SHA256校验文件。便携包GUI的1P/2P输入为空；私有阵码、实验成绩、缓存、个人配置与维护材料不随包分发。缺失的上游telemetry/frames金样仍明确跳过；本次模拟器验收不等同于原Flash等价证明。
